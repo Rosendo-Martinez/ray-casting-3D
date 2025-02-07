@@ -28,7 +28,7 @@ public:
 
 	virtual bool intersect( const Ray& r , Hit& h , float tmin){
 
-		// float a = 1; // assumes R_d is normalized
+		// // float a = 1; // assumes R_d is normalized
 		float a = Vector3f::dot(r.getDirection(), r.getDirection());
 		float b = 2 * Vector3f::dot(r.getDirection(), r.getOrigin());
 		float c = Vector3f::dot(r.getOrigin(),r.getOrigin()) - (this->radius * this->radius);
@@ -36,7 +36,7 @@ public:
 
 		if (discriminantSqr < 0) // no hit
 		{
-			return;
+			return false;
 		}
 		else if (discriminantSqr == 0) // one hit
 		{
@@ -45,6 +45,7 @@ public:
 			{
 				Vector3f normal = (r.pointAtParameter(t) - r.getOrigin()) / this->radius;
 				h.set(t, this->material, normal);
+				return true;
 			}
 		}
 		else // two hits
@@ -57,13 +58,17 @@ public:
 			{
 				Vector3f normal = (r.pointAtParameter(t_plus) - r.getOrigin()) / this->radius;
 				h.set(t_plus, this->material, normal);
+				return true;
 			}
 			else if (t_minus < t_plus && t_minus >= 0 && t_minus >= tmin) // t_minus is closer and positive
 			{
 				Vector3f normal = (r.pointAtParameter(t_minus) - r.getOrigin()) / this->radius;
 				h.set(t_minus, this->material, normal);
+				return true;
 			}
 		}
+		
+		return false;
 	}
 
 protected:
