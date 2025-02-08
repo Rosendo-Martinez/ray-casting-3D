@@ -18,13 +18,6 @@ float clampedDepth ( float depthInput, float depthMin , float depthMax);
 #include "bitmap_image.hpp"
 int main( int argc, char* argv[] )
 {
-  // Fill in your implementation here.
-
-  // This loop loops over each of the input arguments.
-  // argNum is initialized to 1 because the first
-  // "argument" provided to the program is actually the
-  // name of the executable (in our case, "a4").
-
   // User input
   std::string OUTPUT;
   std::string INPUT;
@@ -32,28 +25,24 @@ int main( int argc, char* argv[] )
   int HEIGHT = 0;
 
   for( int argNum = 1; argNum < argc; ++argNum )
-    {
-      std::cout << "Argument " << argNum << " is: " << argv[argNum] << std::endl;
+  {
+    std::cout << "Argument " << argNum << " is: " << argv[argNum] << std::endl;
 
-      // if (std::string(argv[argNum]) == "-input")
-      if (strcmp(argv[argNum], "-input") == 0)
-      {
-        INPUT = argv[argNum + 1];
-      }
-      // else if (argv[argNum] == "-output")
-      else if (strcmp(argv[argNum], "-output") == 0)
-      {
-        OUTPUT = argv[argNum + 1];
-      }
-      // else if (argv[argNum] == "-size")
-      else if (strcmp(argv[argNum], "-size") == 0)
-      {
-        WIDTH = std::stoi(argv[argNum + 1]);
-        HEIGHT = std::stoi(argv[argNum + 2]);
-      }
+    if (strcmp(argv[argNum], "-input") == 0)
+    {
+      INPUT = argv[argNum + 1];
     }
-    
-    std::cout << INPUT << '\n';
+    else if (strcmp(argv[argNum], "-output") == 0)
+    {
+      OUTPUT = argv[argNum + 1];
+    }
+    else if (strcmp(argv[argNum], "-size") == 0)
+    {
+      WIDTH = std::stoi(argv[argNum + 1]);
+      HEIGHT = std::stoi(argv[argNum + 2]);
+    }
+  }
+
   // Creates empty file if one doesn't exist.
   if (OUTPUT.size() != 0)
   {
@@ -68,7 +57,6 @@ int main( int argc, char* argv[] )
   // pixel in your output image.
 
   Image image(WIDTH, HEIGHT);
-  // std::cout << INPUT.size() << '\n';
   SceneParser scene(INPUT.c_str());
   Camera* camera = scene.getCamera();
   Group* zaWarudo = scene.getGroup();
@@ -76,6 +64,7 @@ int main( int argc, char* argv[] )
   const float deltaX = 2.0f / WIDTH;
   const float deltaY = 2.0f / HEIGHT;
   const Vector2f pixel_00 = Vector2f(-1.0f, 1.0f) - Vector2f(deltaX, deltaY);
+
   for (int row = 0; row < WIDTH; row++)
   {
     for (int col = 0; col < HEIGHT; col++)
@@ -84,20 +73,16 @@ int main( int argc, char* argv[] )
       Ray ray = camera->generateRay(pixel);
       Hit hit;
       
-        std::cout << "HELLO?\n";
       if (zaWarudo->intersect(ray, hit, camera->getTMin())) // hit something
       {
         image.SetPixel(row, col, hit.getMaterial()->getDiffuseColor());
       }
-      else
+      else // hit nothing
       {
         image.SetPixel(row, col, scene.getBackgroundColor());
       }
     }
   }
-
-  std::cout << OUTPUT.size() << '\n';
-
   image.SaveImage(OUTPUT.c_str());
  
   ///TODO: below demonstrates how to use the provided Image class
