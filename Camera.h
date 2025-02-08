@@ -29,11 +29,24 @@ class PerspectiveCamera: public Camera
 {
 public:
 	PerspectiveCamera(const Vector3f& center, const Vector3f& direction,const Vector3f& up , float angle){
+		this->center = center;
+		this->fov = angle;
 
+		// Camera basis vectors
+		this->direction = direction;
+		this->horizontal = Vector3f::cross(this->direction, up).normalized();
+		this->up = Vector3f::cross(this->horizontal, this->direction).normalized();
+
+		// Virtual screen
+		this->screenOffset = direction * (1.0f / tan(angle/2.0f));
 	}
 
 	virtual Ray generateRay( const Vector2f& point){
-		
+		// ASSUMPTION: No aspect ratio? I assume image will be square, for now.
+		Vector3f pointOnScreen = (point.x() * this->horizontal) + (point.y() * this->up) + screenOffset;
+		Vector3f rayDir = (pointOnScreen - this->center).normalized();
+
+		return Ray(this->center, rayDir);
 	}
 
 	virtual float getTMin() const { 
@@ -41,6 +54,8 @@ public:
 	}
 
 private:
+	float fov; // horizontal
+	Vector3f screenOffset;
 
 };
 
