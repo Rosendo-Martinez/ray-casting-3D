@@ -19,6 +19,9 @@ struct UserInput
   char* inputFile = nullptr;
   int imageWidth = 0;
   int imageHeight = 0;
+  char* outputDepthFile = nullptr;
+  int depthNear = 0;
+  int depthFar = 0;
 } userInput;
 
 float clampedDepth(float depthInput, float depthMin, float depthMax);
@@ -68,6 +71,12 @@ int main(int argc, char* argv[])
 // true if error occurred
 bool handleUserInput(int argc, char* argv[])
 {
+  if (argc == 1)
+  {
+    std::cout << "Command Line Parameters:\n-input <file>\n-output <file>\n-size <width> <height>\n-depth <file> <near> <far>" << std::endl;
+    return true;
+  }
+
   // ASSUMPTION: user is not an idiot (wait, I'm the user...)
   for (int argNum = 1; argNum < argc; ++argNum)
   {
@@ -87,6 +96,15 @@ bool handleUserInput(int argc, char* argv[])
       userInput.imageWidth = std::stoi(argv[argNum]);
       argNum++;
       userInput.imageHeight = std::stoi(argv[argNum]);
+    }
+    else if (strcmp(argv[argNum], "-depth"))
+    {
+      argNum++;
+      userInput.outputDepthFile = argv[argNum];
+      argNum++;
+      userInput.depthNear = std::stoi(argv[argNum]);
+      argNum++;
+      userInput.depthFar = std::stoi(argv[argNum]);
     }
   }
 
