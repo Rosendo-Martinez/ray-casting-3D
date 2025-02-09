@@ -13,10 +13,10 @@
 
 using namespace std;
 
-float clampedDepth ( float depthInput, float depthMin , float depthMax);
+float clampedDepth(float depthInput, float depthMin, float depthMax);
 
 #include "bitmap_image.hpp"
-int main( int argc, char* argv[] )
+int main(int argc, char* argv[])
 {
   // User input
   std::string OUTPUT;
@@ -50,12 +50,6 @@ int main( int argc, char* argv[] )
     file.close();
   }
 
-  // First, parse the scene using SceneParser.
-  // Then loop over each pixel in the image, shooting a ray
-  // through that pixel and finding its intersection with
-  // the scene.  Write the color at the intersection to that
-  // pixel in your output image.
-
   Image image(WIDTH, HEIGHT);
   SceneParser scene(INPUT.c_str());
   Camera* camera = scene.getCamera();
@@ -72,11 +66,7 @@ int main( int argc, char* argv[] )
       Vector2f pixel = pixel_00 + (col * Vector2f(deltaX, 0.0f)) + (row * Vector2f(0.0f, -deltaY));
       Ray ray = camera->generateRay(pixel);
       Hit hit;
-      
-      // std::cout << "Before, hello?\n";
-      // std::cout << "Group Size: " << zaWarudo->getGroupSize() << '\n';
-      // std::cout << "Camera Tmin: " << camera->getTMin() << '\n';
-      // std::cout << "After, hello?\n";
+
       bool hitSomething = zaWarudo->intersect(ray, hit, camera->getTMin());
       if (hitSomething) // hit something
       {
@@ -89,14 +79,6 @@ int main( int argc, char* argv[] )
     }
   }
   image.SaveImage(OUTPUT.c_str());
- 
-  ///TODO: below demonstrates how to use the provided Image class
-  ///Should be removed when you start
-  // Vector3f pixelColor (1.0f,0,0);
-  // //width and height
-  // Image image( 10 , 15 );
-  // image.SetPixel( 5,5, pixelColor );
-  // image.SaveImage("hello.bmp");
+
   return 0;
 }
-
