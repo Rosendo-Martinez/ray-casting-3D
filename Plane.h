@@ -15,7 +15,8 @@ public:
 	}
 	~Plane(){}
 	virtual bool intersect( const Ray& r , Hit& h , float tmin){
-		
+		// TODO
+		return false;
 	}
 
 protected:

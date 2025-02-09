@@ -73,7 +73,12 @@ int main( int argc, char* argv[] )
       Ray ray = camera->generateRay(pixel);
       Hit hit;
       
-      if (zaWarudo->intersect(ray, hit, camera->getTMin())) // hit something
+      // std::cout << "Before, hello?\n";
+      // std::cout << "Group Size: " << zaWarudo->getGroupSize() << '\n';
+      // std::cout << "Camera Tmin: " << camera->getTMin() << '\n';
+      // std::cout << "After, hello?\n";
+      bool hitSomething = zaWarudo->intersect(ray, hit, camera->getTMin());
+      if (hitSomething) // hit something
       {
         image.SetPixel(row, col, hit.getMaterial()->getDiffuseColor());
       }

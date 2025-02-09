@@ -40,10 +40,16 @@ public:
   }
 
   virtual bool intersect( const Ray& r , Hit& h , float tmin ) {
+    bool hitSomething = false;
     for (int i = 0; i < num; i++)
     {
-      objects[i]->intersect(r, h, tmin);
+      if (objects[i]->intersect(r, h, tmin))
+      {
+        hitSomething = true;
+      }
     }
+
+    return hitSomething;
   }
 	
   void addObject( int index , Object3D* obj ){
