@@ -1,18 +1,28 @@
 CC = g++
-SRCS = $(wildcard *.cpp)
-SRCS += $(wildcard vecmath/src/*.cpp)
-OBJS = $(SRCS:.cpp=.o)
+SRCS = $(wildcard src/*.cpp) $(wildcard vecmath/src/*.cpp)
+OBJS = $(SRCS:src/%.cpp=bin/%.o)
+OBJS := $(OBJS:vecmath/src/%.cpp=bin/%.o)  # Correctly rename vecmath objects
 PROG = a4
 CFLAGS = -O2 -Wall -Wextra
 INCFLAGS = -Ivecmath/include
+
+# Print variables to debug
+# $(info SRCS = $(SRCS))
+# $(info OBJS = $(OBJS))
+# $(info PROG = $(PROG))
+# $(info CFLAGS = $(CFLAGS))
+# $(info INCFLAGS = $(INCFLAGS))
 
 all: $(PROG)
 
 $(PROG): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $@ $(LINKFLAGS)
 
-.cpp.o:
-	$(CC) $(CFLAGS) $< -c -o $@ $(INCFLAGS)
+bin/%.o: src/%.cpp
+	$(CC) $(CFLAGS) -c $< -o $@ $(INCFLAGS)
+
+bin/%.o: vecmath/src/%.cpp
+	$(CC) $(CFLAGS) -c $< -o $@ $(INCFLAGS)
 
 clean:
-	rm -f *.bak vecmath/src/*.o *.o core.* $(PROG) 
+	rm -f *.bak vecmath/src/*.o bin/*.o *.o core.* $(PROG)
