@@ -20,8 +20,8 @@ struct UserInput
   int imageWidth = 0;
   int imageHeight = 0;
   char* outputDepthFile = nullptr;
-  int depthNear = 0;
-  int depthFar = 0;
+  float depthNear = 0;
+  float depthFar = 0;
 } userInput;
 
 float clampedDepth(float depthInput, float depthMin, float depthMax);
@@ -39,10 +39,14 @@ int main(int argc, char* argv[])
   SceneParser scene(userInput.inputFile);
   Camera* camera = scene.getCamera();
   Group* zaWarudo = scene.getGroup();
-
   const float deltaX = 2.0f / userInput.imageWidth;
   const float deltaY = 2.0f / userInput.imageHeight;
   const Vector2f pixel_00 = Vector2f(-1.0f, 1.0f) - Vector2f(deltaX, deltaY);
+  Image* imageDepth = nullptr;
+  if (userInput.outputDepthFile != nullptr)
+  {
+    imageDepth = new Image(userInput.imageWidth, userInput.imageHeight);
+  }
 
   for (int row = 0; row < userInput.imageWidth; row++)
   {
@@ -61,9 +65,28 @@ int main(int argc, char* argv[])
       {
         image.SetPixel(row, col, scene.getBackgroundColor());
       }
+
+      if (userInput.outputDepthFile != nullptr)
+      {
+        if (hitSomething)
+        {
+          float distance = (ray.pointAtParameter(hit.getT()) - ray.getOrigin()).abs();
+          float clamped = clampedDepth(distance, userInput.depthNear, userInput.depthFar);
+          float range = userInput.depthFar - userInput.depthNear;
+
+          // near is white (1), far is black (0)
+          float color = (1 - ((clamped - userInput.depthNear)/range));
+          imageDepth->SetPixel(row, col, Vector3f(color));
+        }
+        else
+        {
+          imageDepth->SetPixel(row, col, Vector3f(0));
+        }
+      }
     }
   }
   image.SaveImage(userInput.outputFile);
+  imageDepth->SaveImage(userInput.outputDepthFile);
 
   return 0;
 }
@@ -97,14 +120,14 @@ bool handleUserInput(int argc, char* argv[])
       argNum++;
       userInput.imageHeight = std::stoi(argv[argNum]);
     }
-    else if (strcmp(argv[argNum], "-depth"))
+    else if (strcmp(argv[argNum], "-depth") == 0)
     {
       argNum++;
       userInput.outputDepthFile = argv[argNum];
       argNum++;
-      userInput.depthNear = std::stoi(argv[argNum]);
+      userInput.depthNear = std::stof(argv[argNum]);
       argNum++;
-      userInput.depthFar = std::stoi(argv[argNum]);
+      userInput.depthFar = std::stof(argv[argNum]);
     }
   }
 
@@ -132,6 +155,28 @@ bool handleUserInput(int argc, char* argv[])
     std::ofstream file(userInput.outputFile);
     file.close();
   }
+  if (userInput.outputDepthFile != nullptr)
+  {
+      // Creates empty file if one does't exist.
+    // Program won't work if it doesn't already exist.
+    std::ofstream file(userInput.outputDepthFile);
+    file.close();
+  }
 
   return error;
+}
+
+
+float clampedDepth(float depthInput, float depthMin, float depthMax)
+{
+  if (depthInput < depthMin)
+  {
+    return depthMin;
+  }
+  if (depthInput > depthMax)
+  {
+    return depthMax;
+  }
+
+  return depthInput;
 }
