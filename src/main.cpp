@@ -86,7 +86,11 @@ int main(int argc, char* argv[])
     }
   }
   image.SaveImage(userInput.outputFile);
-  imageDepth->SaveImage(userInput.outputDepthFile);
+
+  if (imageDepth != nullptr)
+  {
+    imageDepth->SaveImage(userInput.outputDepthFile);
+  }
 
   return 0;
 }
@@ -103,30 +107,40 @@ bool handleUserInput(int argc, char* argv[])
   // ASSUMPTION: user is not an idiot (wait, I'm the user...)
   for (int argNum = 1; argNum < argc; ++argNum)
   {
+    std::cout << "Arg " << argNum << ":\n";
+    std::cout << "  " << argv[argNum] << "\n";
+
     if (strcmp(argv[argNum], "-input") == 0)
     {
       argNum++;
+      std::cout << "  " << argv[argNum] << "\n";
       userInput.inputFile = argv[argNum];
     }
     else if (strcmp(argv[argNum], "-output") == 0)
     {
       argNum++;
+      std::cout << "  " << argv[argNum] << "\n";
       userInput.outputFile = argv[argNum];
     }
     else if (strcmp(argv[argNum], "-size") == 0)
     {
       argNum++;
+      std::cout << "  " << argv[argNum] << "\n";
       userInput.imageWidth = std::stoi(argv[argNum]);
       argNum++;
+      std::cout << "  " << argv[argNum] << "\n";
       userInput.imageHeight = std::stoi(argv[argNum]);
     }
     else if (strcmp(argv[argNum], "-depth") == 0)
     {
       argNum++;
+      std::cout << "  " << argv[argNum] << "\n";
       userInput.outputDepthFile = argv[argNum];
       argNum++;
+      std::cout << "  " << argv[argNum] << "\n";
       userInput.depthNear = std::stof(argv[argNum]);
       argNum++;
+      std::cout << "  " << argv[argNum] << "\n";
       userInput.depthFar = std::stof(argv[argNum]);
     }
   }
