@@ -38,15 +38,33 @@ public:
 		this->up = Vector3f::cross(this->horizontal, this->direction).normalized();
 
 		// Virtual screen
-		this->screenOffset = direction * (1.0f / tan(angle/2.0f));
+		this->screenOffset = direction * (1.0f / tan(this->fov/2.0f));
+
+		std::cout << "Angle: " << angle << '\n';
+		std::cout << "Camera Center: ";
+		this->center.print();
+		std::cout << "Camera Direction: ";
+		this->direction.print();
+		std::cout << "Camera Horizontal: ";
+		this->horizontal.print();
+		std::cout << "Camera Up: ";
+		this->up.print();
+		std::cout << "Screen Offset: ";
+		this->screenOffset.print();
 	}
 
 	virtual Ray generateRay( const Vector2f& point){
 		// ASSUMPTION: No aspect ratio? I assume image will be square, for now.
-		Vector3f pointOnScreen = (point.x() * this->horizontal) + (point.y() * this->up) + screenOffset;
+		Vector3f pointOnScreen = (point.x() * this->horizontal) + (point.y() * this->up) + screenOffset + this->center;
 		Vector3f rayDir = (pointOnScreen - this->center).normalized();
+		Ray ray = Ray(this->center, rayDir);
 
-		return Ray(this->center, rayDir);
+		// std::cout << "Point: "; point.print();
+		// std::cout << "Point On Screen: "; pointOnScreen.print();
+		// std::cout << "Ray Dir: "; ray.getDirection().print();
+		// std::cout << "Ray Org: "; ray.getOrigin().print();
+
+		return ray;
 	}
 
 	virtual float getTMin() const { 

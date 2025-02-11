@@ -41,18 +41,22 @@ int main(int argc, char* argv[])
   Group* zaWarudo = scene.getGroup();
   const float deltaX = 2.0f / userInput.imageWidth;
   const float deltaY = 2.0f / userInput.imageHeight;
-  const Vector2f pixel_00 = Vector2f(-1.0f, 1.0f) - Vector2f(deltaX, deltaY);
+  const Vector2f pixel_00 = Vector2f(-1.0f, 1.0f) + Vector2f(deltaX, -deltaY)/2.0f;
   Image* imageDepth = nullptr;
   if (userInput.outputDepthFile != nullptr)
   {
     imageDepth = new Image(userInput.imageWidth, userInput.imageHeight);
   }
 
+  // for (Object3D obj : zaWarudo.)
+
   for (int row = 0; row < userInput.imageWidth; row++)
   {
     for (int col = 0; col < userInput.imageHeight; col++)
     {
       Vector2f pixel = pixel_00 + (col * Vector2f(deltaX, 0.0f)) + (row * Vector2f(0.0f, -deltaY));
+      // std::cout << "Pixel: ";
+      // pixel.print();
       Ray ray = camera->generateRay(pixel);
       Hit hit;
 

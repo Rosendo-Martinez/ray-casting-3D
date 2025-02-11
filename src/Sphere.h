@@ -27,21 +27,23 @@ public:
 	~Sphere(){}
 
 	virtual bool intersect( const Ray& r , Hit& h , float tmin){
-
-		// // float a = 1; // assumes R_d is normalized
-		float a = Vector3f::dot(r.getDirection(), r.getDirection());
+		// float a = Vector3f::dot(r.getDirection(), r.getDirection());
+		float a = 1; // assumes R_d is normalized
 		float b = 2 * Vector3f::dot(r.getDirection(), r.getOrigin());
 		float c = Vector3f::dot(r.getOrigin(),r.getOrigin()) - (this->radius * this->radius);
 		float discriminantSqr = (b*b) - (4*a*c);
 
+		std::cout << "h.t = " << h.getT() << '\n';
 		if (discriminantSqr < 0) // no hit
 		{
+			std::cout << "No hit\n";
 			return false;
 		}
 		else if (discriminantSqr == 0) // one hit
 		{
+			std::cout << "One hit\n";
 			float t = (-b) / (2 * a);
-			if (t >= tmin && t < h.getT())
+			if (t >= tmin && t < h.getT() && t >= 0)
 			{
 				Vector3f normal = (r.pointAtParameter(t) - r.getOrigin()) / this->radius;
 				h.set(t, this->material, normal);
@@ -53,14 +55,16 @@ public:
 			float d = std::sqrt(discriminantSqr);
 			float t_plus = (-b + d) / (2 * a);
 			float t_minus = (-b - d) / (2 * a);
+			std::cout << "T_+: " << t_plus << '\n';
+			std::cout << "T_-: " << t_minus << '\n';
 
-			if (t_plus < t_minus && t_plus >= 0 && t_plus >= tmin) // t_plus is closer and positive
+			if (t_plus < t_minus && t_plus >= 0 && t_plus >= tmin && t_plus < h.getT()) // t_plus is closer and positive
 			{
 				Vector3f normal = (r.pointAtParameter(t_plus) - r.getOrigin()) / this->radius;
 				h.set(t_plus, this->material, normal);
 				return true;
 			}
-			else if (t_minus < t_plus && t_minus >= 0 && t_minus >= tmin) // t_minus is closer and positive
+			else if (t_minus < t_plus && t_minus >= 0 && t_minus >= tmin && t_minus < h.getT()) // t_minus is closer and positive
 			{
 				Vector3f normal = (r.pointAtParameter(t_minus) - r.getOrigin()) / this->radius;
 				h.set(t_minus, this->material, normal);
