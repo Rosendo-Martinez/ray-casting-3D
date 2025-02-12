@@ -51,7 +51,7 @@ public:
 			float t = (-b) / (2 * a);
 			if (t >= tmin && t < h.getT() && t >= 0)
 			{
-				Vector3f normal = (r.pointAtParameter(t) - r.getOrigin()) / this->radius;
+				Vector3f normal = (r.pointAtParameter(t) - this->center) / this->radius;
 				h.set(t, this->material, normal);
 				return true;
 			}
@@ -64,13 +64,13 @@ public:
 
 			if (t_plus < t_minus && t_plus >= 0 && t_plus >= tmin && t_plus < h.getT()) // t_plus is closer and positive
 			{
-				Vector3f normal = (r.pointAtParameter(t_plus) - r.getOrigin()) / this->radius;
+				Vector3f normal = (r.pointAtParameter(t_plus) - this->center) / this->radius;
 				h.set(t_plus, this->material, normal);
 				return true;
 			}
 			else if (t_minus < t_plus && t_minus >= 0 && t_minus >= tmin && t_minus < h.getT()) // t_minus is closer and positive
 			{
-				Vector3f normal = (r.pointAtParameter(t_minus) - r.getOrigin()) / this->radius;
+				Vector3f normal = (r.pointAtParameter(t_minus) - this->center) / this->radius;
 				h.set(t_minus, this->material, normal);
 				return true;
 			}
