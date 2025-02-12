@@ -48,15 +48,11 @@ int main(int argc, char* argv[])
     imageDepth = new Image(userInput.imageWidth, userInput.imageHeight);
   }
 
-  // for (Object3D obj : zaWarudo.)
-
   for (int row = 0; row < userInput.imageWidth; row++)
   {
     for (int col = 0; col < userInput.imageHeight; col++)
     {
       Vector2f pixel = pixel_00 + (col * Vector2f(deltaX, 0.0f)) + (row * Vector2f(0.0f, -deltaY));
-      // std::cout << "Pixel: ";
-      // pixel.print();
       Ray ray = camera->generateRay(pixel);
       Hit hit;
 
