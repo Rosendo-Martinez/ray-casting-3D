@@ -9,37 +9,27 @@
 
 using  namespace std;
 
-///TODO: 
-///Implement Group
-///Add data structure to store a list of Object* 
+
 class Group:public Object3D
 {
 public:
-
-  Group(){
-
-  }
+  Group() {}
 	
-  Group( int num_objects ){
-    objects = new Object3D*[num_objects];
+  Group(int num_objects)
+  {
+    // Create heap array of pointers to Object3D
+    objects = new Object3D*[num_objects]();
     num = num_objects;
-
-    for (int i = 0; i < num; i++)
-    {
-      objects[i] = nullptr;
-    }
   }
 
-  ~Group(){
-    for (int i = 0; i < num; i++)
-    {
-      delete objects[i];
-    }
-
+  // WARNING: assumes user takes care of freeing Objects3D!
+  ~Group()
+  {
     delete[] objects;
   }
 
-  virtual bool intersect( const Ray& r , Hit& h , float tmin ) {
+  virtual bool intersect(const Ray& r, Hit& h, float tmin)
+  {
     bool hitSomething = false;
     for (int i = 0; i < num; i++)
     {
@@ -52,11 +42,13 @@ public:
     return hitSomething;
   }
 	
-  void addObject( int index , Object3D* obj ){
+  void addObject(int index, Object3D* obj)
+  {
     objects[index] = obj;
   }
 
-  int getGroupSize(){ 
+  int getGroupSize()
+  { 
     return num;
   }
 
