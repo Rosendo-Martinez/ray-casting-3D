@@ -7,46 +7,42 @@
 
 #include <iostream>
 using namespace std;
-///TODO:
-///Implement functions and add more fields as necessary
+
+
 class Sphere: public Object3D
 {
 public:
-	Sphere(){ 
+	Sphere()
+	{ 
 		//unit ball at the center
 		center = Vector3f(0.f);
 		radius = 1.0f;
 	}
 
-	Sphere( Vector3f center , float radius , Material* material ):Object3D(material){
+	Sphere( Vector3f center , float radius , Material* material )
+		: Object3D(material)
+	{
 		this->center = center;
 		this->radius = radius;
-
-		std::cout << "Sphere:\n";
-		std::cout << "    center: "; this->center.print();
-		std::cout << "    radius: " << this->radius << '\n';
-		std::cout << "    color: "; this->material->getDiffuseColor().print();
 	}
 	
 
-	~Sphere(){}
+	~Sphere() {}
 
-	virtual bool intersect( const Ray& r , Hit& h , float tmin){
+	virtual bool intersect( const Ray& r , Hit& h , float tmin)
+	{
 		// float a = Vector3f::dot(r.getDirection(), r.getDirection());
-		float a = 1; // assumes R_d is normalized
+		float a = 1; // ASSUMES R_d is normalized, may not be true when doing TRANSFORMATIONS
 		float b = 2 * Vector3f::dot(r.getDirection(), r.getOrigin());
 		float c = Vector3f::dot(r.getOrigin(),r.getOrigin()) - (this->radius * this->radius);
 		float discriminantSqr = (b*b) - (4*a*c);
 
-		// std::cout << "h.t = " << h.getT() << '\n';
 		if (discriminantSqr < 0) // no hit
 		{
-			// std::cout << "No hit\n";
 			return false;
 		}
 		else if (discriminantSqr == 0) // one hit
 		{
-			// std::cout << "One hit\n";
 			float t = (-b) / (2 * a);
 			if (t >= tmin && t < h.getT() && t >= 0)
 			{
@@ -60,8 +56,6 @@ public:
 			float d = std::sqrt(discriminantSqr);
 			float t_plus = (-b + d) / (2 * a);
 			float t_minus = (-b - d) / (2 * a);
-			// std::cout << "T_+: " << t_plus << '\n';
-			// std::cout << "T_-: " << t_minus << '\n';
 
 			if (t_plus < t_minus && t_plus >= 0 && t_plus >= tmin && t_plus < h.getT()) // t_plus is closer and positive
 			{
