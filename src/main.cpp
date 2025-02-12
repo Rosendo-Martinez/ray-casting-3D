@@ -22,6 +22,7 @@ struct UserInput
   char* outputDepthFile = nullptr;
   float depthNear = 0;
   float depthFar = 0;
+  char* outputNormals = nullptr;
 } userInput;
 
 float clampedDepth(float depthInput, float depthMin, float depthMax);
@@ -100,7 +101,7 @@ bool handleUserInput(int argc, char* argv[])
 {
   if (argc == 1)
   {
-    std::cout << "Command Line Parameters:\n-input <file>\n-output <file>\n-size <width> <height>\n-depth <file> <near> <far>" << std::endl;
+    std::cout << "Command Line Parameters:\n-input <file>\n-output <file>\n-size <width> <height>\n-depth <file> <near> <far> -normals <file>" << std::endl;
     return true;
   }
 
@@ -133,6 +134,14 @@ bool handleUserInput(int argc, char* argv[])
       argNum++;
       userInput.depthFar = std::stof(argv[argNum]);
     }
+    else if (strcmp(argv[argNum], "-normals") == 0)
+    {
+      std::cout << argv[argNum] << '\n';
+      std::cout << argv[argNum + 1] << '\n';
+
+      argNum++;
+      userInput.outputNormals = argv[argNum];
+    }
   }
 
   bool error = false;
@@ -164,6 +173,13 @@ bool handleUserInput(int argc, char* argv[])
       // Creates empty file if one does't exist.
     // Program won't work if it doesn't already exist.
     std::ofstream file(userInput.outputDepthFile);
+    file.close();
+  }
+  if (userInput.outputNormals != nullptr)
+  {
+      // Creates empty file if one does't exist.
+    // Program won't work if it doesn't already exist.
+    std::ofstream file(userInput.outputNormals);
     file.close();
   }
 
