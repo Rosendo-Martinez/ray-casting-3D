@@ -66,20 +66,20 @@ int main(int argc, char* argv[])
       bool hitSomething = zaWarudo->intersect(ray, hit, camera->getTMin());
       if (hitSomething) // hit something
       {
-        image.SetPixel(row, col, hit.getMaterial()->getDiffuseColor());
+        image.SetPixel(col, row, hit.getMaterial()->getDiffuseColor());
 
         if (imageNormals != nullptr)
         {
-          imageNormals->SetPixel(row, col, normalColor(hit.getNormal()));
+          imageNormals->SetPixel(col, row, normalColor(hit.getNormal()));
         }
       }
       else // hit nothing
       {
-        image.SetPixel(row, col, scene.getBackgroundColor());
+        image.SetPixel(col, row, scene.getBackgroundColor());
 
         if (imageNormals != nullptr)
         {
-          imageNormals->SetPixel(row, col, scene.getBackgroundColor());
+          imageNormals->SetPixel(col, row, scene.getBackgroundColor());
         }
       }
 
@@ -93,12 +93,12 @@ int main(int argc, char* argv[])
 
           // near is white (1), far is black (0)
           float color = (1 - ((clamped - userInput.depthNear)/range));
-          imageDepth->SetPixel(row, col, Vector3f(color));
+          imageDepth->SetPixel(col, row, Vector3f(color));
 
         }
         else
         {
-          imageDepth->SetPixel(row, col, Vector3f(0));
+          imageDepth->SetPixel(col, row, Vector3f(0));
         }
       }
     }
@@ -227,5 +227,5 @@ Vector3f normalColor(const Vector3f& normal)
   float g = normal.y() >= 0.0f ? normal.y() : -1.0f * normal.y();
   float b = normal.z() >= 0.0f ? normal.z() : -1.0f * normal.z();
 
-  return Vector3f(r, g, b);
+  return Vector3f(0, g, 0);
 }
