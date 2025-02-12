@@ -31,6 +31,10 @@ public:
 
 	virtual bool intersect( const Ray& r , Hit& h , float tmin)
 	{
+		/**
+		 * WARNING: can only handle spheres centered at origin, for now!
+		 */
+
 		// float a = Vector3f::dot(r.getDirection(), r.getDirection());
 		float a = 1; // ASSUMES R_d is normalized, may not be true when doing TRANSFORMATIONS
 		float b = 2 * Vector3f::dot(r.getDirection(), r.getOrigin());
