@@ -19,21 +19,22 @@ public:
 		radius = 1.0f;
 	}
 
-	Sphere( Vector3f center , float radius , Material* material )
+	Sphere(Vector3f center, float radius, Material* material)
 		: Object3D(material)
 	{
 		this->center = center;
 		this->radius = radius;
 	}
 	
-
 	~Sphere() {}
 
-	virtual bool intersect( const Ray& r , Hit& h , float tmin)
+	virtual bool intersect(const Ray& r, Hit& h, float tmin)
 	{
-		/**
-		 * WARNING: can only handle spheres centered at origin, for now!
-		 */
+		if (this->center != Vector3f(0.0f))
+		{
+			std::cout << "Not Implemented: can't YET do intersection on spheres not centered at origin" << std::endl;
+			return false;
+		}
 
 		// float a = Vector3f::dot(r.getDirection(), r.getDirection());
 		float a = 1; // ASSUMES R_d is normalized, may not be true when doing TRANSFORMATIONS
