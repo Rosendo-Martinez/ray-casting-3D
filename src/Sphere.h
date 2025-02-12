@@ -21,6 +21,11 @@ public:
 	Sphere( Vector3f center , float radius , Material* material ):Object3D(material){
 		this->center = center;
 		this->radius = radius;
+
+		std::cout << "Sphere:\n";
+		std::cout << "    center: "; this->center.print();
+		std::cout << "    radius: " << this->radius << '\n';
+		std::cout << "    color: "; this->material->getDiffuseColor().print();
 	}
 	
 
@@ -33,15 +38,15 @@ public:
 		float c = Vector3f::dot(r.getOrigin(),r.getOrigin()) - (this->radius * this->radius);
 		float discriminantSqr = (b*b) - (4*a*c);
 
-		std::cout << "h.t = " << h.getT() << '\n';
+		// std::cout << "h.t = " << h.getT() << '\n';
 		if (discriminantSqr < 0) // no hit
 		{
-			std::cout << "No hit\n";
+			// std::cout << "No hit\n";
 			return false;
 		}
 		else if (discriminantSqr == 0) // one hit
 		{
-			std::cout << "One hit\n";
+			// std::cout << "One hit\n";
 			float t = (-b) / (2 * a);
 			if (t >= tmin && t < h.getT() && t >= 0)
 			{
@@ -55,8 +60,8 @@ public:
 			float d = std::sqrt(discriminantSqr);
 			float t_plus = (-b + d) / (2 * a);
 			float t_minus = (-b - d) / (2 * a);
-			std::cout << "T_+: " << t_plus << '\n';
-			std::cout << "T_-: " << t_minus << '\n';
+			// std::cout << "T_+: " << t_plus << '\n';
+			// std::cout << "T_-: " << t_minus << '\n';
 
 			if (t_plus < t_minus && t_plus >= 0 && t_plus >= tmin && t_plus < h.getT()) // t_plus is closer and positive
 			{
