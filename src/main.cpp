@@ -27,6 +27,7 @@ struct UserInput
 
 float clampedDepth(float depthInput, float depthMin, float depthMax);
 bool handleUserInput(int argc, char* argv[]);
+Vector3f normalColor(const Vector3f& normal);
 
 #include "bitmap_image.hpp"
 int main(int argc, char* argv[])
@@ -44,9 +45,14 @@ int main(int argc, char* argv[])
   const float deltaY = 2.0f / userInput.imageHeight;
   const Vector2f pixel_00 = Vector2f(-1.0f, 1.0f) + Vector2f(deltaX, -deltaY)/2.0f;
   Image* imageDepth = nullptr;
+  Image* imageNormals = nullptr;
   if (userInput.outputDepthFile != nullptr)
   {
     imageDepth = new Image(userInput.imageWidth, userInput.imageHeight);
+  }
+  if (userInput.outputNormals != nullptr)
+  {
+    imageNormals = new Image(userInput.imageWidth, userInput.imageHeight);
   }
 
   for (int row = 0; row < userInput.imageWidth; row++)
@@ -61,10 +67,20 @@ int main(int argc, char* argv[])
       if (hitSomething) // hit something
       {
         image.SetPixel(row, col, hit.getMaterial()->getDiffuseColor());
+
+        if (imageNormals != nullptr)
+        {
+          imageNormals->SetPixel(row, col, normalColor(hit.getNormal()));
+        }
       }
       else // hit nothing
       {
         image.SetPixel(row, col, scene.getBackgroundColor());
+
+        if (imageNormals != nullptr)
+        {
+          imageNormals->SetPixel(row, col, scene.getBackgroundColor());
+        }
       }
 
       if (userInput.outputDepthFile != nullptr)
@@ -78,6 +94,7 @@ int main(int argc, char* argv[])
           // near is white (1), far is black (0)
           float color = (1 - ((clamped - userInput.depthNear)/range));
           imageDepth->SetPixel(row, col, Vector3f(color));
+
         }
         else
         {
@@ -91,6 +108,10 @@ int main(int argc, char* argv[])
   if (imageDepth != nullptr)
   {
     imageDepth->SaveImage(userInput.outputDepthFile);
+  }
+  if (imageNormals != nullptr)
+  {
+    imageNormals->SaveImage(userInput.outputNormals);
   }
 
   return 0;
@@ -186,7 +207,6 @@ bool handleUserInput(int argc, char* argv[])
   return error;
 }
 
-
 float clampedDepth(float depthInput, float depthMin, float depthMax)
 {
   if (depthInput < depthMin)
@@ -199,4 +219,13 @@ float clampedDepth(float depthInput, float depthMin, float depthMax)
   }
 
   return depthInput;
+}
+
+Vector3f normalColor(const Vector3f& normal)
+{
+  float r = normal.x() >= 0.0f ? normal.x() : -1.0f * normal.x();
+  float g = normal.y() >= 0.0f ? normal.y() : -1.0f * normal.y();
+  float b = normal.z() >= 0.0f ? normal.z() : -1.0f * normal.z();
+
+  return Vector3f(r, g, b);
 }
