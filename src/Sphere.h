@@ -30,9 +30,9 @@ public:
 
 	virtual bool intersect(const Ray& r, Hit& h, float tmin)
 	{
+		// Can't handle spheres not centered at origin, for now.
 		if (this->center != Vector3f(0.0f))
 		{
-			std::cout << "Not Implemented: can't YET do intersection on spheres not centered at origin" << std::endl;
 			return false;
 		}
 
