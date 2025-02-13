@@ -227,5 +227,5 @@ Vector3f normalColor(const Vector3f& normal)
   float g = normal.y() >= 0.0f ? normal.y() : -1.0f * normal.y();
   float b = normal.z() >= 0.0f ? normal.z() : -1.0f * normal.z();
 
-  return Vector3f(0, g, 0);
+  return Vector3f(r, g, b);
 }
