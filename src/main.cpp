@@ -70,9 +70,8 @@ int main(int argc, char* argv[])
         Vector3f lightColor;
         float distToLight;
         scene.getLight(0)->getIllumination(ray.pointAtParameter(hit.getT()), dirToLight, lightColor, distToLight);
-
-        // diffuse shading
-        Vector3f color = hit.getMaterial()->Shade(ray, hit, dirToLight, lightColor);
+        Vector3f ambient = scene.getAmbientLight() * hit.getMaterial()->getDiffuseColor();
+        Vector3f color = hit.getMaterial()->Shade(ray, hit, dirToLight, lightColor) + ambient;
         image.SetPixel(col, row, color);
 
         if (imageNormals != nullptr)
