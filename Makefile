@@ -27,5 +27,8 @@ bin/%.o: vecmath/src/%.cpp
 clean:
 	rm -f *.bak vecmath/src/*.o bin/*.o *.o core.* $(PROG)
 
-render: $(PROG)
+render1: $(PROG)
 	$(PROG) -input ./scenes/scene01_plane.txt -output ./images-mine/image.bmp -size 500 500 -depth ./images-mine/depth.bmp 9 20 -normals ./images-mine/normals.bmp
+
+render2: $(PROG)
+	$(PROG) -input ./scenes/scene02_cube.txt -output ./images-mine/image.bmp -size 500 500 -depth ./images-mine/depth.bmp 10 13 -normals ./images-mine/normals.bmp
