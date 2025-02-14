@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
   Group* zaWarudo = scene.getGroup();
   const float deltaX = 2.0f / userInput.imageWidth;
   const float deltaY = 2.0f / userInput.imageHeight;
-  const Vector2f pixel_00 = Vector2f(-1.0f, 1.0f) + Vector2f(deltaX, -deltaY)/2.0f;
+  const Vector2f pixel_bottomLeft = Vector2f(-1.0f, -1.0f) + Vector2f(deltaX, -deltaY)/2.0f;
   Image* imageDepth = nullptr;
   Image* imageNormals = nullptr;
   if (userInput.outputDepthFile != nullptr)
@@ -59,14 +59,21 @@ int main(int argc, char* argv[])
   {
     for (int col = 0; col < userInput.imageHeight; col++)
     {
-      Vector2f pixel = pixel_00 + (col * Vector2f(deltaX, 0.0f)) + (row * Vector2f(0.0f, -deltaY));
+      Vector2f pixel = pixel_bottomLeft + (col * Vector2f(deltaX, 0.0f)) + (row * Vector2f(0.0f, deltaY));
       Ray ray = camera->generateRay(pixel);
       Hit hit;
 
       bool hitSomething = zaWarudo->intersect(ray, hit, camera->getTMin());
       if (hitSomething) // hit something
       {
-        image.SetPixel(col, row, hit.getMaterial()->getDiffuseColor());
+        Vector3f dirToLight;
+        Vector3f lightColor;
+        float distToLight;
+        scene.getLight(0)->getIllumination(ray.pointAtParameter(hit.getT()), dirToLight, lightColor, distToLight);
+
+        // diffuse shading
+        Vector3f color = hit.getMaterial()->Shade(ray, hit, dirToLight, lightColor);
+        image.SetPixel(col, row, color);
 
         if (imageNormals != nullptr)
         {

@@ -27,7 +27,8 @@ public:
 
   Vector3f Shade(const Ray& ray, const Hit& hit, const Vector3f& dirToLight, const Vector3f& lightColor)
   {
-    return Vector3f(1,1,1);
+    float diffuse = clamp(Vector3f::dot(dirToLight, hit.getNormal()), 0.0f, 1.0f);
+    return (diffuse * lightColor) * this->getDiffuseColor();
   }
 
   void loadTexture(const char * filename)
