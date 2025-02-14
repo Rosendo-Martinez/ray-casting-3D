@@ -45,7 +45,7 @@ public:
 
 		if (isTriangleIntersection && isLegalT && isCloserIntersection)
 		{
-			Vector3f normal = (alpha * a) + (beta * b) + (gamma * c);
+			Vector3f normal = ((alpha * normals[0]) + (beta * normals[1]) + (gamma * normals[2])).normalized();
 			hit.set(t, this->material, normal);
 			isHit = true;
 		}

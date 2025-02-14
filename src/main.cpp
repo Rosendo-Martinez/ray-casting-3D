@@ -72,7 +72,10 @@ int main(int argc, char* argv[])
         scene.getLight(0)->getIllumination(ray.pointAtParameter(hit.getT()), dirToLight, lightColor, distToLight);
         Vector3f ambient = scene.getAmbientLight() * hit.getMaterial()->getDiffuseColor();
         Vector3f color = hit.getMaterial()->Shade(ray, hit, dirToLight, lightColor) + ambient;
-        image.SetPixel(col, row, color);
+        float rClamp = color.x() > 1.0f ? 1.0f : color.x();
+        float gClamp = color.y() > 1.0f ? 1.0f : color.y();
+        float bClamp = color.z() > 1.0f ? 1.0f : color.z();
+        image.SetPixel(col, row, Vector3f(rClamp, gClamp, bClamp));
 
         if (imageNormals != nullptr)
         {
