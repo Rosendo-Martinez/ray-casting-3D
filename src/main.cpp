@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
   Group* zaWarudo = scene.getGroup();
   const float deltaX = 2.0f / userInput.imageWidth;
   const float deltaY = 2.0f / userInput.imageHeight;
-  const Vector2f pixel_bottomLeft = Vector2f(-1.0f, -1.0f) + Vector2f(deltaX, -deltaY)/2.0f;
+  const Vector2f pixel_bottomLeft = Vector2f(-1.0f, -1.0f) + Vector2f(deltaX, deltaY)/2.0f;
   Image* imageDepth = nullptr;
   Image* imageNormals = nullptr;
   if (userInput.outputDepthFile != nullptr)
