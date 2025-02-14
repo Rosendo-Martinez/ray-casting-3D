@@ -28,4 +28,4 @@ clean:
 	rm -f *.bak vecmath/src/*.o bin/*.o *.o core.* $(PROG)
 
 render: $(PROG)
-	$(PROG) -input ./scenes/scene01_plane.txt -output ./images-mine/image.bmp -size 500 500 -depth ./images-mine/depth.bmp 9 9.5 -normals ./images-mine/normals.bmp
+	$(PROG) -input ./scenes/scene01_plane.txt -output ./images-mine/image.bmp -size 500 500 -depth ./images-mine/depth.bmp 9 20 -normals ./images-mine/normals.bmp

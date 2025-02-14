@@ -28,8 +28,8 @@ public:
 			return false;
 		}
 
-		float t = -(this->d + Vector3f::dot(this->normal, r.getOrigin())) / n_dot_rd;
-		
+		float t = (this->d - Vector3f::dot(this->normal, r.getOrigin())) / n_dot_rd;
+
 		bool isLegalIntersection = (t >= 0.0f && t >= tmin);
 		bool isCloserIntersection = (t < h.getT());
 		if (isLegalIntersection && isCloserIntersection)
