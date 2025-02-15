@@ -61,6 +61,7 @@ public:
         t = _t;
         material = m;
         normal = n;
+        // hasTex = false; // I added this. Should I keep it???
     }
 	void setTexCoord(const Vector2f & coord){
 		texCoord = coord;

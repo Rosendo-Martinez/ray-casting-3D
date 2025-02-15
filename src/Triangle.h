@@ -46,7 +46,9 @@ public:
 		if (isTriangleIntersection && isLegalT && isCloserIntersection)
 		{
 			Vector3f normal = ((alpha * normals[0]) + (beta * normals[1]) + (gamma * normals[2])).normalized();
+			Vector2f tex = ((alpha * texCoords[0]) + (beta * texCoords[1]) + (gamma * texCoords[2])); // normalize???
 			hit.set(t, this->material, normal);
+			hit.setTexCoord(tex);
 			isHit = true;
 		}
 
