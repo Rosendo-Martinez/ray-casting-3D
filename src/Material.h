@@ -27,8 +27,12 @@ public:
 
   Vector3f Shade(const Ray& ray, const Hit& hit, const Vector3f& dirToLight, const Vector3f& lightColor)
   {
+    Vector3f reflected = (ray.getDirection() - 2 * (Vector3f::dot(ray.getDirection(), hit.getNormal())) * hit.getNormal()).normalized();
+
+    float specular = pow(clamp(Vector3f::dot(reflected, dirToLight), 0.0f, 1.0f), shininess);
     float diffuse = clamp(Vector3f::dot(dirToLight, hit.getNormal()), 0.0f, 1.0f);
-    return (diffuse * lightColor) * this->getDiffuseColor();
+
+    return (diffuse * lightColor) * this->getDiffuseColor() + (specular * lightColor) * specularColor;
   }
 
   void loadTexture(const char * filename)
