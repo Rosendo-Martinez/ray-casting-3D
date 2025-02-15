@@ -32,3 +32,6 @@ render1: $(PROG)
 
 render2: $(PROG)
 	$(PROG) -input ./scenes/scene02_cube.txt -output ./images-mine/image.bmp -size 500 500 -depth ./images-mine/depth.bmp 10 13 -normals ./images-mine/normals.bmp
+
+render3: $(PROG)
+	$(PROG) -input ./scenes/scene03_sphere.txt -output ./images-mine/image.bmp -size 500 500 -depth ./images-mine/depth.bmp 10 13 -normals ./images-mine/normals.bmp

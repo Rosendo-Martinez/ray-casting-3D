@@ -24,26 +24,33 @@ public:
 	{
 		this->center = center;
 		this->radius = radius;
+
+		// center.print();
+		// std::cout << "raidus: " << radius << '\n';
 	}
 	
 	~Sphere() {}
 
 	virtual bool intersect(const Ray& r, Hit& h, float tmin)
 	{
-		// Can't handle spheres not centered at origin, for now.
-		if (this->center != Vector3f(0.0f))
-		{
-			return false;
-		}
+		// std::cout << "Sphere int\n";
 
-		// float a = Vector3f::dot(r.getDirection(), r.getDirection());
-		float a = 1; // ASSUMES R_d is normalized, may not be true when doing TRANSFORMATIONS
+		// // Can't handle spheres not centered at origin, for now.
+		// if (this->center != Vector3f(0.0f))
+		// {
+		// 	return false;
+		// }
+
+		// float a = 1; // ASSUMES R_d is normalized, may not be true when doing TRANSFORMATIONS
+		float a = Vector3f::dot(r.getDirection(), r.getDirection());
 		float b = 2 * Vector3f::dot(r.getDirection(), r.getOrigin());
 		float c = Vector3f::dot(r.getOrigin(),r.getOrigin()) - (this->radius * this->radius);
 		float discriminantSqr = (b*b) - (4*a*c);
+		// std::cout << "discrm: " << discriminantSqr << '\n';
 
 		if (discriminantSqr < 0) // no hit
 		{
+			// std::cout << "Discrm < 0\n";
 			return false;
 		}
 		else if (discriminantSqr == 0) // one hit
