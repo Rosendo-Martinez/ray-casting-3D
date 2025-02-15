@@ -43,8 +43,8 @@ public:
 
 		// float a = 1; // ASSUMES R_d is normalized, may not be true when doing TRANSFORMATIONS
 		float a = Vector3f::dot(r.getDirection(), r.getDirection());
-		float b = 2 * Vector3f::dot(r.getDirection(), r.getOrigin());
-		float c = Vector3f::dot(r.getOrigin(),r.getOrigin()) - (this->radius * this->radius);
+		float b = 2 * (Vector3f::dot(r.getDirection(), r.getOrigin()) - Vector3f::dot(r.getDirection(), center));
+		float c = Vector3f::dot(r.getOrigin(),r.getOrigin()) - (2 * Vector3f::dot(r.getOrigin(), center)) + Vector3f::dot(center,center) - (this->radius * this->radius);
 		float discriminantSqr = (b*b) - (4*a*c);
 		// std::cout << "discrm: " << discriminantSqr << '\n';
 
