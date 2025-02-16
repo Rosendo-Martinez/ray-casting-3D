@@ -30,14 +30,14 @@ public:
 	{
 		this->center = center; // camera position
 		this->fov = angle; // radians, horizontal
-		this->direction = direction; // looking at
+		this->direction = direction.normalized(); // looking at
 
 		// Calculate camera basis vectors
 		this->horizontal = Vector3f::cross(this->direction, up).normalized();
 		this->up = Vector3f::cross(this->horizontal, this->direction).normalized();
 
 		// Calculate virtual screen offset
-		this->virtualScreenOffset = direction * (1.0f / tan(this->fov/2.0f));
+		this->virtualScreenOffset = this->direction * (1.0f / tan(this->fov/2.0f));
 	}
 
 	// ASSUMPTION: Only handles square images, for now.
