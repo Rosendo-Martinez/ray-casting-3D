@@ -25,6 +25,14 @@ struct UserInput
   char* outputNormals = nullptr;
 } userInput;
 
+Image* colored = nullptr;
+Image* depth = nullptr;
+Image* normals = nullptr;
+SceneParser* scene = nullptr;
+Camera* camera = nullptr;
+Group* world_objects = nullptr;
+
+void colorPixel(bool hitSomething, const Hit& hit, int row, int col, Ray ray);
 float clampedDepth(float depthInput, float depthMin, float depthMax);
 bool handleUserInput(int argc, char* argv[]);
 Vector3f normalColor(const Vector3f& normal);
@@ -37,93 +45,98 @@ int main(int argc, char* argv[])
     return 0;
   }
 
-  Image image(userInput.imageWidth, userInput.imageHeight);
-  SceneParser scene(userInput.inputFile);
-  Camera* camera = scene.getCamera();
-  Group* zaWarudo = scene.getGroup();
-  const float deltaX = 2.0f / userInput.imageWidth;
-  const float deltaY = 2.0f / userInput.imageHeight;
-  const Vector2f pixel_bottomLeft = Vector2f(-1.0f, -1.0f) + Vector2f(deltaX, deltaY)/2.0f;
-  Image* imageDepth = nullptr;
-  Image* imageNormals = nullptr;
+  scene = new SceneParser(userInput.inputFile);
+  camera = scene->getCamera();
+  world_objects = scene->getGroup();
+
+  const float delta_x = 2.0f / userInput.imageWidth;
+  const float delta_y = 2.0f / userInput.imageHeight;
+  const Vector2f pixel_bottom_left = Vector2f(-1.0f, -1.0f) + Vector2f(delta_x, delta_y)/2.0f;
+
+  colored = new Image(userInput.imageWidth, userInput.imageHeight);
   if (userInput.outputDepthFile != nullptr)
   {
-    imageDepth = new Image(userInput.imageWidth, userInput.imageHeight);
+    depth = new Image(userInput.imageWidth, userInput.imageHeight);
   }
   if (userInput.outputNormals != nullptr)
   {
-    imageNormals = new Image(userInput.imageWidth, userInput.imageHeight);
+    normals = new Image(userInput.imageWidth, userInput.imageHeight);
   }
 
   for (int row = 0; row < userInput.imageWidth; row++)
   {
     for (int col = 0; col < userInput.imageHeight; col++)
     {
-      Vector2f pixel = pixel_bottomLeft + (col * Vector2f(deltaX, 0.0f)) + (row * Vector2f(0.0f, deltaY));
+      Vector2f pixel = pixel_bottom_left + (col * Vector2f(delta_x, 0.0f)) + (row * Vector2f(0.0f, delta_y));
       Ray ray = camera->generateRay(pixel);
       Hit hit;
 
-      bool hitSomething = zaWarudo->intersect(ray, hit, camera->getTMin());
-      if (hitSomething) // hit something
-      {
-        Vector3f dirToLight;
-        Vector3f lightColor;
-        float distToLight;
-        scene.getLight(0)->getIllumination(ray.pointAtParameter(hit.getT()), dirToLight, lightColor, distToLight);
-        Vector3f ambient = scene.getAmbientLight() * hit.getMaterial()->getDiffuseColor();
-        Vector3f color = hit.getMaterial()->Shade(ray, hit, dirToLight, lightColor) + ambient;
-        float rClamp = color.x() > 1.0f ? 1.0f : color.x();
-        float gClamp = color.y() > 1.0f ? 1.0f : color.y();
-        float bClamp = color.z() > 1.0f ? 1.0f : color.z();
-        image.SetPixel(col, row, Vector3f(rClamp, gClamp, bClamp));
-
-        if (imageNormals != nullptr)
-        {
-          imageNormals->SetPixel(col, row, normalColor(hit.getNormal()));
-        }
-      }
-      else // hit nothing
-      {
-        image.SetPixel(col, row, scene.getBackgroundColor());
-
-        if (imageNormals != nullptr)
-        {
-          imageNormals->SetPixel(col, row, scene.getBackgroundColor());
-        }
-      }
-
-      if (userInput.outputDepthFile != nullptr)
-      {
-        if (hitSomething)
-        {
-          float distance = (ray.pointAtParameter(hit.getT()) - ray.getOrigin()).abs();
-          float clamped = clampedDepth(distance, userInput.depthNear, userInput.depthFar);
-          float range = userInput.depthFar - userInput.depthNear;
-
-          // near is white (1), far is black (0)
-          float color = (1 - ((clamped - userInput.depthNear)/range));
-          imageDepth->SetPixel(col, row, Vector3f(color));
-
-        }
-        else
-        {
-          imageDepth->SetPixel(col, row, Vector3f(0));
-        }
-      }
+      bool hitSomething = world_objects->intersect(ray, hit, camera->getTMin());
+      colorPixel(hitSomething, hit, row, col, ray);
     }
   }
-  image.SaveImage(userInput.outputFile);
+  colored->SaveImage(userInput.outputFile);
 
-  if (imageDepth != nullptr)
+  if (depth != nullptr)
   {
-    imageDepth->SaveImage(userInput.outputDepthFile);
+    depth->SaveImage(userInput.outputDepthFile);
   }
-  if (imageNormals != nullptr)
+  if (normals != nullptr)
   {
-    imageNormals->SaveImage(userInput.outputNormals);
+    normals->SaveImage(userInput.outputNormals);
   }
 
   return 0;
+}
+
+void colorPixel(bool hitSomething, const Hit& hit, int row, int col, Ray ray)
+{
+  if (hitSomething) // hit something
+  {
+    Vector3f dirToLight;
+    Vector3f lightColor;
+    float distToLight;
+    scene->getLight(0)->getIllumination(ray.pointAtParameter(hit.getT()), dirToLight, lightColor, distToLight);
+    Vector3f ambient = scene->getAmbientLight() * hit.getMaterial()->getDiffuseColor();
+    Vector3f color = hit.getMaterial()->Shade(ray, hit, dirToLight, lightColor) + ambient;
+    float rClamp = color.x() > 1.0f ? 1.0f : color.x();
+    float gClamp = color.y() > 1.0f ? 1.0f : color.y();
+    float bClamp = color.z() > 1.0f ? 1.0f : color.z();
+    colored->SetPixel(col, row, Vector3f(rClamp, gClamp, bClamp));
+
+    if (normals != nullptr)
+    {
+      normals->SetPixel(col, row, normalColor(hit.getNormal()));
+    }
+  }
+  else // hit nothing
+  {
+    colored->SetPixel(col, row, scene->getBackgroundColor());
+
+    if (normals != nullptr)
+    {
+      normals->SetPixel(col, row, scene->getBackgroundColor());
+    }
+  }
+
+  if (userInput.outputDepthFile != nullptr)
+  {
+    if (hitSomething)
+    {
+      float distance = (ray.pointAtParameter(hit.getT()) - ray.getOrigin()).abs();
+      float clamped = clampedDepth(distance, userInput.depthNear, userInput.depthFar);
+      float range = userInput.depthFar - userInput.depthNear;
+
+      // near is white (1), far is black (0)
+      float color = (1 - ((clamped - userInput.depthNear)/range));
+      depth->SetPixel(col, row, Vector3f(color));
+
+    }
+    else
+    {
+      depth->SetPixel(col, row, Vector3f(0));
+    }
+  }
 }
 
 // true if error occurred
