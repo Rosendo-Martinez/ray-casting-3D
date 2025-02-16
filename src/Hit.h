@@ -56,17 +56,18 @@ public:
         return normal;
     }
 
-    void set( float _t, Material* m, const Vector3f& n )
+    void set(float _t, Material* m, const Vector3f& n, bool _hasTex = false)
     {
         t = _t;
         material = m;
         normal = n;
-        // hasTex = false; // I added this. Should I keep it???
+        this->hasTex = _hasTex;
     }
+
 	void setTexCoord(const Vector2f & coord){
 		texCoord = coord;
-		hasTex = true;
 	}
+
 	bool hasTex;
 	Vector2f texCoord;
 private:

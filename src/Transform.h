@@ -36,7 +36,7 @@ public:
     // Transform normal to world space
     Vector4f normal_os = Vector4f(h.getNormal(), 0.0f);
     Vector3f normal_ws = (m_inv_trans * normal_os).xyz().normalized();
-    h.set(h.getT(), h.getMaterial(), normal_ws);
+    h.set(h.getT(), h.getMaterial(), normal_ws, h.hasTex);
 
     return true;
   }
