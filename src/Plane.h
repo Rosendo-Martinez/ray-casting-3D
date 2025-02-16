@@ -4,7 +4,6 @@
 #include "Object3D.h"
 #include <vecmath.h>
 #include <cmath>
-using namespace std;
 
 
 class Plane : public Object3D
@@ -20,26 +19,24 @@ public:
 
 	virtual bool intersect(const Ray& r, Hit& h, float tmin)
 	{
-		float n_dot_rd = Vector3f::dot(this->normal, r.getDirection());
+		float n_dot_rd = Vector3f::dot(normal, r.getDirection());
 
-		bool isRayDirectionParallelToPlan = (n_dot_rd == 0);
-		if (isRayDirectionParallelToPlan) // many or zero intersections
+		// Ray and plane are parallel
+		if (n_dot_rd == 0)
 		{
 			return false;
 		}
 
-		float t = (this->d - Vector3f::dot(this->normal, r.getOrigin())) / n_dot_rd;
+		float n_dot_ro = Vector3f::dot(normal, r.getOrigin());
+		float t = (d - n_dot_ro) / n_dot_rd;
 
-		bool isLegalIntersection = (t >= 0.0f && t >= tmin);
-		bool isCloserIntersection = (t < h.getT());
-		if (isLegalIntersection && isCloserIntersection)
+		if (t < tmin || t > h.getT())
 		{
-			// In some cases normal may need to be negative! 
-			h.set(t, this->material, this->normal);
-			return true;
+			return false;
 		}
 
-		return false;
+		h.set(t, material, normal);
+		return true;
 	}
 
 protected:
@@ -47,4 +44,4 @@ protected:
 	const float d = 0.0f;
 };
 
-#endif //PLANE_H
+#endif // PLANE_H
