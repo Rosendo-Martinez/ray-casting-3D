@@ -32,6 +32,7 @@ SceneParser* scene = nullptr;
 Camera* camera = nullptr;
 Group* world_objects = nullptr;
 
+Vector3f clampColor(const Vector3f& color);
 void colorPixel(bool hitSomething, const Hit& hit, int row, int col, Ray ray);
 float clampedDepth(float depthInput, float depthMin, float depthMax);
 bool handleUserInput(int argc, char* argv[]);
@@ -51,7 +52,9 @@ int main(int argc, char* argv[])
 
   const float delta_x = 2.0f / input.WIDTH;
   const float delta_y = 2.0f / input.HEIGHT;
-  const Vector2f pixel_bottom_left = Vector2f(-1.0f, -1.0f) + Vector2f(delta_x, delta_y)/2.0f;
+  const Vector2f image_bottom_left = Vector2f(-1.0f, -1.0f);
+  const Vector2f delta_half = Vector2f(delta_x, delta_y)/2.0f;
+  const Vector2f pixel00_center = image_bottom_left + delta_half;
 
   colored = new Image(input.WIDTH, input.HEIGHT);
   if (input.DEPTH_FILE != nullptr)
@@ -67,10 +70,12 @@ int main(int argc, char* argv[])
   {
     for (int col = 0; col < input.HEIGHT; col++)
     {
-      Vector2f pixel = pixel_bottom_left + (col * Vector2f(delta_x, 0.0f)) + (row * Vector2f(0.0f, delta_y));
+      float x_offset = col * delta_x;
+      float y_offset = row * delta_y;
+      Vector2f pixel = pixel00_center + Vector2f(x_offset, y_offset);
       Ray ray = camera->generateRay(pixel);
-      Hit hit;
 
+      Hit hit;
       bool hitSomething = world_objects->intersect(ray, hit, camera->getTMin());
       colorPixel(hitSomething, hit, row, col, ray);
     }
@@ -99,13 +104,11 @@ void colorPixel(bool hitSomething, const Hit& hit, int row, int col, Ray ray)
     scene->getLight(0)->getIllumination(ray.pointAtParameter(hit.getT()), dirToLight, lightColor, distToLight);
 
     Vector3f ambient = scene->getAmbientLight() * hit.getMaterial()->getDiffuseColor();
-    Vector3f color = hit.getMaterial()->Shade(ray, hit, dirToLight, lightColor) + ambient;
+    Vector3f diffuse_and_specular = hit.getMaterial()->Shade(ray, hit, dirToLight, lightColor);
+    Vector3f color = diffuse_and_specular + ambient;
+    Vector3f colorClamped = clampColor(color);
 
-    float rClamp = color.x() > 1.0f ? 1.0f : color.x();
-    float gClamp = color.y() > 1.0f ? 1.0f : color.y();
-    float bClamp = color.z() > 1.0f ? 1.0f : color.z();
-
-    colored->SetPixel(col, row, Vector3f(rClamp, gClamp, bClamp));
+    colored->SetPixel(col, row, colorClamped);
     if (normals != nullptr)
     {
       normals->SetPixel(col, row, normalColor(hit.getNormal()));
@@ -246,4 +249,13 @@ Vector3f normalColor(const Vector3f& normal)
   float b = normal.z() >= 0.0f ? normal.z() : -1.0f * normal.z();
 
   return Vector3f(r, g, b);
+}
+
+Vector3f clampColor(const Vector3f& color)
+{
+  float rClamp = clamp(color.x(), 0.0f, 1.0f);
+  float gClamp = clamp(color.y(), 0.0f, 1.0f);
+  float bClamp = clamp(color.z(), 0.0f, 1.0f);
+
+  return Vector3f(rClamp, gClamp, bClamp);
 }
