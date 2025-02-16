@@ -4,91 +4,104 @@
 #include "Object3D.h"
 #include <vecmath.h>
 #include <cmath>
-
 #include <iostream>
-using namespace std;
 
 
-class Sphere: public Object3D
+class Sphere : public Object3D
 {
 public:
 	Sphere()
-	{ 
-		//unit ball at the center
-		center = Vector3f(0.f);
-		radius = 1.0f;
-	}
+		: center(Vector3f(0.0f)), radius(1.0f)
+	{}
 
 	Sphere(Vector3f center, float radius, Material* material)
-		: Object3D(material)
-	{
-		this->center = center;
-		this->radius = radius;
-
-		// center.print();
-		// std::cout << "raidus: " << radius << '\n';
-	}
+		: Object3D(material), radius(radius), center(center)
+	{}
 	
 	~Sphere() {}
 
 	virtual bool intersect(const Ray& r, Hit& h, float tmin)
 	{
-		// std::cout << "Sphere int\n";
+		const float rd_dot_rd = Vector3f::dot(r.getDirection(), r.getDirection());
+		const float ro_dot_ro = Vector3f::dot(r.getOrigin(), r.getOrigin());
+		const float rd_dot_ro = Vector3f::dot(r.getDirection(), r.getOrigin());
+		const float rd_dot_c = Vector3f::dot(r.getDirection(), center);
+		const float ro_dot_c = Vector3f::dot(r.getOrigin(), center);
+		const float c_dot_c = Vector3f::dot(center, center);
 
-		// // Can't handle spheres not centered at origin, for now.
-		// if (this->center != Vector3f(0.0f))
-		// {
-		// 	return false;
-		// }
+		float a = rd_dot_rd;
+		float b = 2 * (rd_dot_ro - rd_dot_c);
+		float c = ro_dot_ro + (-2.0f * ro_dot_c) + c_dot_c - (radius * radius);
+		float d_squared = (b * b) - (4 * a * c);
 
-		// float a = 1; // ASSUMES R_d is normalized, may not be true when doing TRANSFORMATIONS
-		float a = Vector3f::dot(r.getDirection(), r.getDirection());
-		float b = 2 * (Vector3f::dot(r.getDirection(), r.getOrigin()) - Vector3f::dot(r.getDirection(), center));
-		float c = Vector3f::dot(r.getOrigin(),r.getOrigin()) - (2 * Vector3f::dot(r.getOrigin(), center)) + Vector3f::dot(center,center) - (this->radius * this->radius);
-		float discriminantSqr = (b*b) - (4*a*c);
-		// std::cout << "discrm: " << discriminantSqr << '\n';
+		// Case: no intersection
 
-		if (discriminantSqr < 0) // no hit
+		if (d_squared < 0)
 		{
-			// std::cout << "Discrm < 0\n";
 			return false;
 		}
-		else if (discriminantSqr == 0) // one hit
+
+		// Case: intersection at 1 point
+
+		if (d_squared == 0)
 		{
 			float t = (-b) / (2 * a);
-			if (t >= tmin && t < h.getT() && t >= 0)
-			{
-				Vector3f normal = (r.pointAtParameter(t) - this->center) / this->radius;
-				h.set(t, this->material, normal);
-				return true;
-			}
-		}
-		else // two hits
-		{
-			float d = std::sqrt(discriminantSqr);
-			float t_plus = (-b + d) / (2 * a);
-			float t_minus = (-b - d) / (2 * a);
+			bool legalT = t >= tmin;
+			bool closerHit = t < h.getT();
 
-			if (t_plus < t_minus && t_plus >= 0 && t_plus >= tmin && t_plus < h.getT()) // t_plus is closer and positive
+			if (legalT && closerHit)
 			{
-				Vector3f normal = (r.pointAtParameter(t_plus) - this->center) / this->radius;
-				h.set(t_plus, this->material, normal);
+				Vector3f p = r.pointAtParameter(t);
+				h.set(t, material, normalAtPoint(p));
+
 				return true;
 			}
-			else if (t_minus < t_plus && t_minus >= 0 && t_minus >= tmin && t_minus < h.getT()) // t_minus is closer and positive
-			{
-				Vector3f normal = (r.pointAtParameter(t_minus) - this->center) / this->radius;
-				h.set(t_minus, this->material, normal);
-				return true;
-			}
+
+			return false;
+		}
+
+		// Case: intersection at 2 points
+
+		float d = std::sqrt(d_squared);
+		float t_plus = (-b + d) / (2 * a);
+		float t_minus = (-b - d) / (2 * a);
+
+		bool tPlus_closer_then_tMinus = t_plus < t_minus;
+		bool tPlus_legalT = t_plus >= tmin;
+		bool tPlus_closerHit = t_plus < h.getT();
+
+		if (tPlus_closer_then_tMinus && tPlus_legalT && tPlus_closerHit)
+		{
+			Vector3f p = r.pointAtParameter(t_plus);
+			h.set(t_plus, material, normalAtPoint(p));
+
+			return true;
+		}
+
+		bool tMinus_legalT = t_minus >= tmin;
+		bool tMinus_closerHit = t_minus < h.getT();
+
+		if (!tPlus_closer_then_tMinus && tMinus_legalT && tMinus_closerHit)
+		{
+			Vector3f p = r.pointAtParameter(t_minus);
+			h.set(t_minus, material, normalAtPoint(p));
+
+			return true;
 		}
 		
 		return false;
 	}
 
 protected:
-	Vector3f center;
-	float radius;
+	const Vector3f center;
+	const float radius;
+
+private:
+	Vector3f normalAtPoint(const Vector3f& p) const
+	{
+		return (p - center) / radius;
+	}
+	
 };
 
 
