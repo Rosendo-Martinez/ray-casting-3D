@@ -15,15 +15,15 @@ using namespace std;
 
 struct UserInput
 {
-  char* outputFile = nullptr;
-  char* inputFile = nullptr;
-  int imageWidth = 0;
-  int imageHeight = 0;
-  char* outputDepthFile = nullptr;
-  float depthNear = 0;
-  float depthFar = 0;
-  char* outputNormals = nullptr;
-} userInput;
+  char* SCENE_FILE = nullptr;
+  char* COLORED_FILE = nullptr;
+  char* NORMALS_FILE = nullptr;
+  char* DEPTH_FILE = nullptr;
+  int WIDTH = 0;
+  int HEIGHT = 0;
+  float DEPTH_NEAR = 0;
+  float DEPTH_FAR = 0;
+} input;
 
 Image* colored = nullptr;
 Image* depth = nullptr;
@@ -45,27 +45,27 @@ int main(int argc, char* argv[])
     return 0;
   }
 
-  scene = new SceneParser(userInput.inputFile);
+  scene = new SceneParser(input.SCENE_FILE);
   camera = scene->getCamera();
   world_objects = scene->getGroup();
 
-  const float delta_x = 2.0f / userInput.imageWidth;
-  const float delta_y = 2.0f / userInput.imageHeight;
+  const float delta_x = 2.0f / input.WIDTH;
+  const float delta_y = 2.0f / input.HEIGHT;
   const Vector2f pixel_bottom_left = Vector2f(-1.0f, -1.0f) + Vector2f(delta_x, delta_y)/2.0f;
 
-  colored = new Image(userInput.imageWidth, userInput.imageHeight);
-  if (userInput.outputDepthFile != nullptr)
+  colored = new Image(input.WIDTH, input.HEIGHT);
+  if (input.DEPTH_FILE != nullptr)
   {
-    depth = new Image(userInput.imageWidth, userInput.imageHeight);
+    depth = new Image(input.WIDTH, input.HEIGHT);
   }
-  if (userInput.outputNormals != nullptr)
+  if (input.NORMALS_FILE != nullptr)
   {
-    normals = new Image(userInput.imageWidth, userInput.imageHeight);
+    normals = new Image(input.WIDTH, input.HEIGHT);
   }
 
-  for (int row = 0; row < userInput.imageWidth; row++)
+  for (int row = 0; row < input.WIDTH; row++)
   {
-    for (int col = 0; col < userInput.imageHeight; col++)
+    for (int col = 0; col < input.HEIGHT; col++)
     {
       Vector2f pixel = pixel_bottom_left + (col * Vector2f(delta_x, 0.0f)) + (row * Vector2f(0.0f, delta_y));
       Ray ray = camera->generateRay(pixel);
@@ -75,15 +75,15 @@ int main(int argc, char* argv[])
       colorPixel(hitSomething, hit, row, col, ray);
     }
   }
-  colored->SaveImage(userInput.outputFile);
 
+  colored->SaveImage(input.COLORED_FILE);
   if (depth != nullptr)
   {
-    depth->SaveImage(userInput.outputDepthFile);
+    depth->SaveImage(input.DEPTH_FILE);
   }
   if (normals != nullptr)
   {
-    normals->SaveImage(userInput.outputNormals);
+    normals->SaveImage(input.NORMALS_FILE);
   }
 
   return 0;
@@ -97,42 +97,38 @@ void colorPixel(bool hitSomething, const Hit& hit, int row, int col, Ray ray)
     Vector3f lightColor;
     float distToLight;
     scene->getLight(0)->getIllumination(ray.pointAtParameter(hit.getT()), dirToLight, lightColor, distToLight);
+
     Vector3f ambient = scene->getAmbientLight() * hit.getMaterial()->getDiffuseColor();
     Vector3f color = hit.getMaterial()->Shade(ray, hit, dirToLight, lightColor) + ambient;
+
     float rClamp = color.x() > 1.0f ? 1.0f : color.x();
     float gClamp = color.y() > 1.0f ? 1.0f : color.y();
     float bClamp = color.z() > 1.0f ? 1.0f : color.z();
-    colored->SetPixel(col, row, Vector3f(rClamp, gClamp, bClamp));
 
+    colored->SetPixel(col, row, Vector3f(rClamp, gClamp, bClamp));
     if (normals != nullptr)
     {
       normals->SetPixel(col, row, normalColor(hit.getNormal()));
+    }
+    if (depth != nullptr)
+    {
+      float distance = (ray.pointAtParameter(hit.getT()) - ray.getOrigin()).abs();
+      float clamped = clampedDepth(distance, input.DEPTH_NEAR, input.DEPTH_FAR);
+      float range = input.DEPTH_FAR - input.DEPTH_NEAR;
+
+      // near is white (1), far is black (0)
+      float color = (1 - ((clamped - input.DEPTH_NEAR)/range));
+      depth->SetPixel(col, row, Vector3f(color));
     }
   }
   else // hit nothing
   {
     colored->SetPixel(col, row, scene->getBackgroundColor());
-
     if (normals != nullptr)
     {
       normals->SetPixel(col, row, scene->getBackgroundColor());
     }
-  }
-
-  if (userInput.outputDepthFile != nullptr)
-  {
-    if (hitSomething)
-    {
-      float distance = (ray.pointAtParameter(hit.getT()) - ray.getOrigin()).abs();
-      float clamped = clampedDepth(distance, userInput.depthNear, userInput.depthFar);
-      float range = userInput.depthFar - userInput.depthNear;
-
-      // near is white (1), far is black (0)
-      float color = (1 - ((clamped - userInput.depthNear)/range));
-      depth->SetPixel(col, row, Vector3f(color));
-
-    }
-    else
+    if (depth != nullptr)
     {
       depth->SetPixel(col, row, Vector3f(0));
     }
@@ -154,28 +150,28 @@ bool handleUserInput(int argc, char* argv[])
     if (strcmp(argv[argNum], "-input") == 0)
     {
       argNum++;
-      userInput.inputFile = argv[argNum];
+      input.SCENE_FILE = argv[argNum];
     }
     else if (strcmp(argv[argNum], "-output") == 0)
     {
       argNum++;
-      userInput.outputFile = argv[argNum];
+      input.COLORED_FILE = argv[argNum];
     }
     else if (strcmp(argv[argNum], "-size") == 0)
     {
       argNum++;
-      userInput.imageWidth = std::stoi(argv[argNum]);
+      input.WIDTH = std::stoi(argv[argNum]);
       argNum++;
-      userInput.imageHeight = std::stoi(argv[argNum]);
+      input.HEIGHT = std::stoi(argv[argNum]);
     }
     else if (strcmp(argv[argNum], "-depth") == 0)
     {
       argNum++;
-      userInput.outputDepthFile = argv[argNum];
+      input.DEPTH_FILE = argv[argNum];
       argNum++;
-      userInput.depthNear = std::stof(argv[argNum]);
+      input.DEPTH_NEAR = std::stof(argv[argNum]);
       argNum++;
-      userInput.depthFar = std::stof(argv[argNum]);
+      input.DEPTH_FAR = std::stof(argv[argNum]);
     }
     else if (strcmp(argv[argNum], "-normals") == 0)
     {
@@ -183,46 +179,46 @@ bool handleUserInput(int argc, char* argv[])
       std::cout << argv[argNum + 1] << '\n';
 
       argNum++;
-      userInput.outputNormals = argv[argNum];
+      input.NORMALS_FILE = argv[argNum];
     }
   }
 
   bool error = false;
-  if (userInput.inputFile == nullptr)
+  if (input.SCENE_FILE == nullptr)
   {
     std::cout << "Error: must pass input [-input <input-file>]" << std::endl;
     error = true;
   }
-  if (userInput.outputFile == nullptr)
+  if (input.COLORED_FILE == nullptr)
   {
     std::cout << "Error: must pass output [-output <output-file>]" << std::endl;
     error = true;
   }
-  if (userInput.imageWidth <= 0 || userInput.imageHeight <= 0)
+  if (input.WIDTH <= 0 || input.HEIGHT <= 0)
   {
     std::cout << "Error: didn't pass image size or passed in invalid image dimensions [-size <width> <height>]" << std::endl;
     error = true;
   }
 
-  if (userInput.outputFile != nullptr)
+  if (input.COLORED_FILE != nullptr)
   {
     // Creates empty file if one does't exist.
     // Program won't work if it doesn't already exist.
-    std::ofstream file(userInput.outputFile);
+    std::ofstream file(input.COLORED_FILE);
     file.close();
   }
-  if (userInput.outputDepthFile != nullptr)
+  if (input.DEPTH_FILE != nullptr)
   {
       // Creates empty file if one does't exist.
     // Program won't work if it doesn't already exist.
-    std::ofstream file(userInput.outputDepthFile);
+    std::ofstream file(input.DEPTH_FILE);
     file.close();
   }
-  if (userInput.outputNormals != nullptr)
+  if (input.NORMALS_FILE != nullptr)
   {
       // Creates empty file if one does't exist.
     // Program won't work if it doesn't already exist.
-    std::ofstream file(userInput.outputNormals);
+    std::ofstream file(input.NORMALS_FILE);
     file.close();
   }
 
