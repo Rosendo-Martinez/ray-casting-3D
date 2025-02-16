@@ -98,14 +98,21 @@ void colorPixel(bool hitSomething, const Hit& hit, int row, int col, Ray ray)
 {
   if (hitSomething) // hit something
   {
-    Vector3f dirToLight;
-    Vector3f lightColor;
-    float distToLight;
-    scene->getLight(0)->getIllumination(ray.pointAtParameter(hit.getT()), dirToLight, lightColor, distToLight);
+    Vector3f color(0.0f);
+
+    for (int i = 0; i < scene->getNumLights(); i++)
+    {
+      Vector3f dirToLight;
+      Vector3f lightColor;
+      float distToLight;
+      scene->getLight(i)->getIllumination(ray.pointAtParameter(hit.getT()), dirToLight, lightColor, distToLight);
+      Vector3f diffuse_and_specular = hit.getMaterial()->Shade(ray, hit, dirToLight, lightColor);
+      color += diffuse_and_specular;
+    }
 
     Vector3f ambient = scene->getAmbientLight() * hit.getMaterial()->getDiffuseColor();
-    Vector3f diffuse_and_specular = hit.getMaterial()->Shade(ray, hit, dirToLight, lightColor);
-    Vector3f color = diffuse_and_specular + ambient;
+    color += ambient;
+
     Vector3f colorClamped = clampColor(color);
 
     colored->SetPixel(col, row, colorClamped);
