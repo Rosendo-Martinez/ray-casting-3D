@@ -3,58 +3,49 @@
 
 #include <vecmath.h>
 #include "Object3D.h"
+#include <iostream>
 
-///TODO: implement this class
-///So that the intersect function first transforms the ray
-///Add more fields as necessary
+// A wrapper class for transformable objects: Sphere.
 class Transform : public Object3D
 {
 public:
   Transform() {}
 
-  Transform(const Matrix4f& m, Object3D* obj)
-    : o(obj), m(m), m_inv(m.inverse())
+  Transform(const Matrix4f &m, Object3D *obj)
+    : o(obj), m(m), m_inv(m.inverse()), m_inv_trans(m.inverse().transposed())
   {
-    std::cout << "Hello from Transform constructor!\n";
-
-    this->m.print();
-    m_inv.print();
   }
 
-  ~Transform()
-  {}
+  ~Transform() {}
 
-  virtual bool intersect(const Ray& r, Hit& h, float tmin)
+  virtual bool intersect(const Ray &r, Hit &h, float tmin)
   {
-    // Ray from world to object space
-    Vector4f ray_dir_os = m_inv * Vector4f(r.getDirection(), 0.0f);
-    Vector4f ray_org_os = m_inv * Vector4f(r.getOrigin(), 1.0f);
-    Ray rayOS (ray_org_os.xyz(), ray_dir_os.xyz());
+    Vector4f rd_ws = Vector4f(r.getDirection(), 0.0f);
+    Vector4f ro_ws = Vector4f(r.getOrigin(), 1.0f);
 
-    // ray_dir_os.print();
-    // ray_org_os.print();
+    // Ray in object space
+    Vector4f rd_os = m_inv * rd_ws;
+    Vector4f ro_os = m_inv * ro_ws;
 
-    // std::cout << "Hello, from transform?\n";
     // Object-ray intersection in object space
-    // std::cout << "Transform int\n";
-    // std::cout << "Done w/ Transform int\n";
-    bool isHit = o->intersect(rayOS, h, tmin);
-    if (isHit)
+    if (!o->intersect(Ray(ro_os.xyz(), rd_os.xyz()), h, tmin))
     {
-      // std::cout << "Tranform hit\n";
-
-      // Transform normal to world space
-      Vector4f normalWS = (m_inv.transposed() * Vector4f(h.getNormal(), 0.0f)).normalized();
-      h.set(h.getT(), h.getMaterial(), normalWS.xyz());
+      return false;
     }
 
-    return isHit;
+    // Transform normal to world space
+    Vector4f normal_os = Vector4f(h.getNormal(), 0.0f);
+    Vector3f normal_ws = (m_inv_trans * normal_os).xyz().normalized();
+    h.set(h.getT(), h.getMaterial(), normal_ws);
+
+    return true;
   }
 
 protected:
-  Object3D* o; //un-transformed object
-  Matrix4f m; // object to world space transformation
+  Object3D *o; // un-transformed object
+  Matrix4f m;  // object to world space transformation
   Matrix4f m_inv;
+  Matrix4f m_inv_trans;
 };
 
-#endif //TRANSFORM_H
+#endif // TRANSFORM_H
