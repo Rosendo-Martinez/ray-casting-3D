@@ -54,9 +54,12 @@ public:
 
 		// We have a hit
 		Vector3f norm = ((alpha * normals[0]) + (beta * normals[1]) + (gamma * normals[2])).normalized();
-		Vector2f tex = ((alpha * texCoords[0]) + (beta * texCoords[1]) + (gamma * texCoords[2]));
 		hit.set(t, material, norm);
-		hit.setTexCoord(tex);
+		if (hasTex)
+		{
+			Vector2f tex = ((alpha * texCoords[0]) + (beta * texCoords[1]) + (gamma * texCoords[2]));
+			hit.setTexCoord(tex);
+		}
 
 		return true;
 	}
