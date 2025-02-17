@@ -61,7 +61,7 @@ public:
                 return false;
             }
 
-            Vector3f normal_at_hit = DISTANCE * normal - p_minus_center;
+            Vector3f normal_at_hit = p - (DISTANCE * normal + center);
             normal_at_hit.normalize();
 
             hit.set(t, material, normal_at_hit);
@@ -86,7 +86,7 @@ public:
                 return false;
             }
 
-            Vector3f normal_at_hit = DISTANCE * normal - p_minus_center;
+            Vector3f normal_at_hit = p - (DISTANCE * normal + center);
             normal_at_hit.normalize();
 
             hit.set(t_plus, material, normal_at_hit);
@@ -105,7 +105,7 @@ public:
                 return false;
             }
             
-            Vector3f normal_at_hit = DISTANCE * normal - p_minus_center;
+            Vector3f normal_at_hit = p - (DISTANCE * normal + center);
             normal_at_hit.normalize();
 
             hit.set(t_minus, material, normal_at_hit);

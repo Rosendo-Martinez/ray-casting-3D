@@ -39,6 +39,11 @@ Group {
 	center 0 0 0 
         radius 1 
     }
+    Cylinder {
+        endpoint 0 5 0
+        endpoint 0 -2 0
+        radius 0.1
+    }
     MaterialIndex 1
     Sphere {
 	center 1 1 1 
@@ -61,11 +66,6 @@ Group {
     Plane {
 	normal 0 1 0
         offset -2 
-    }
-    Cylinder {
-        endpoint 0 0 0
-        endpoint 0 1 0
-        radius 1.0
     }
 }
 
