@@ -14,16 +14,10 @@ public:
         : Object3D(m), endpoint_1(e1), endpoint_2(e2), radius(radius)
     {
         normal = (endpoint_2 - endpoint_1).normalized();
-
-        std::cout << "E1: "; e1.print();
-        std::cout << "E2: "; e2.print();
-        std::cout << "R: " << radius << '\n';
     }
 
     virtual bool intersect(const Ray& r, Hit& hit, float tmin)
     {
-        // std::cout << "Cylinder::intersect()\n";
-
         Vector3f rd = r.getDirection();
         Vector3f ro = r.getOrigin();
         Vector3f center = endpoint_1;
@@ -41,10 +35,9 @@ public:
 
         float d_sqr = (b * b) - (4 * a * c);
 
-        // No hit
+        // Zero hits
         if (d_sqr < 0)
         {
-            // std::cout << "no hit 1\n";
             return false;
         }
 
@@ -55,7 +48,6 @@ public:
 
             if (t < tmin || t > hit.getT())
             {
-                std::cout << "no hit 2\n";
                 return false;
             }
 
@@ -65,7 +57,6 @@ public:
             Vector3f normal_at_hit = DISTANCE * normal - p_minus_center;
             normal_at_hit.normalize();
 
-            std::cout << "one hit\n";
             hit.set(t, material, normal_at_hit);
             return true;
         }
@@ -78,7 +69,6 @@ public:
 
         if (t_plus < t_minus && t_plus >= tmin && t_plus < hit.getT())
         {
-            std::cout << "t_plus hit\n";
             Vector3f p = r.pointAtParameter(t_plus);
             Vector3f p_minus_center = p - center;
             float DISTANCE = Vector3f::dot(p_minus_center, normal);
@@ -91,7 +81,6 @@ public:
 
         if (t_minus < t_plus && t_minus >= tmin && t_minus < hit.getT())
         {
-            std::cout << "t_minus hit\n";
             Vector3f p = r.pointAtParameter(t_minus);
             Vector3f p_minus_center = p - center;
             float DISTANCE = Vector3f::dot(p_minus_center, normal);
@@ -102,7 +91,6 @@ public:
             return true;
         }
 
-        std::cout << "no hit 3\n";
         return false;
     }
 
