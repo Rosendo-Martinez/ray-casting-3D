@@ -54,6 +54,13 @@ public:
             Vector3f p = r.pointAtParameter(t);
             Vector3f p_minus_center = p - center;
             float DISTANCE = Vector3f::dot(p_minus_center, normal);
+            float DISTANCE_BETWEEN_ENDPOINTS = (endpoint_2 - endpoint_1).abs();
+
+            if (DISTANCE < 0 || DISTANCE > DISTANCE_BETWEEN_ENDPOINTS)
+            {
+                return false;
+            }
+
             Vector3f normal_at_hit = DISTANCE * normal - p_minus_center;
             normal_at_hit.normalize();
 
@@ -72,6 +79,13 @@ public:
             Vector3f p = r.pointAtParameter(t_plus);
             Vector3f p_minus_center = p - center;
             float DISTANCE = Vector3f::dot(p_minus_center, normal);
+            float DISTANCE_BETWEEN_ENDPOINTS = (endpoint_2 - endpoint_1).abs();
+
+            if (DISTANCE < 0 || DISTANCE > DISTANCE_BETWEEN_ENDPOINTS)
+            {
+                return false;
+            }
+
             Vector3f normal_at_hit = DISTANCE * normal - p_minus_center;
             normal_at_hit.normalize();
 
@@ -84,6 +98,13 @@ public:
             Vector3f p = r.pointAtParameter(t_minus);
             Vector3f p_minus_center = p - center;
             float DISTANCE = Vector3f::dot(p_minus_center, normal);
+            float DISTANCE_BETWEEN_ENDPOINTS = (endpoint_2 - endpoint_1).abs();
+
+            if (DISTANCE < 0 || DISTANCE > DISTANCE_BETWEEN_ENDPOINTS)
+            {
+                return false;
+            }
+            
             Vector3f normal_at_hit = DISTANCE * normal - p_minus_center;
             normal_at_hit.normalize();
 
