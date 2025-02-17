@@ -33,7 +33,7 @@ Materials {
 }
 
 Group {
-    numObjects 6
+    numObjects 7
     MaterialIndex 0
     Sphere {
 	center 0 0 0 
@@ -61,6 +61,11 @@ Group {
     Plane {
 	normal 0 1 0
         offset -2 
+    }
+    Cylinder {
+        endpoint 0 0 0
+        endpoint 0 1 0
+        radius 1.0
     }
 }
 

@@ -15,6 +15,7 @@
 #include "Plane.h"
 #include "Triangle.h"
 #include "Transform.h"
+#include "Cylinder.h"
 
 /*
 class Camera;
@@ -101,6 +102,7 @@ private:
     Triangle* parseTriangle();
     Mesh* parseTriangleMesh();
     Transform* parseTransform();
+    Cylinder* parseCylinder();
 
     int getToken( char token[ MAX_PARSER_TOKEN_LENGTH ] );
     Vector3f readVector3f();
