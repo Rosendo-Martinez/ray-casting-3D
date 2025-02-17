@@ -33,7 +33,7 @@ Materials {
 }
 
 Group {
-    numObjects 7
+    numObjects 8
     MaterialIndex 0
     Sphere {
 	center 0 0 0 
@@ -43,6 +43,11 @@ Group {
         endpoint 0 5 0
         endpoint 0 -2 0
         radius 0.1
+    }
+    Circle {
+        normal 0 0 1
+        center -2 1 0
+        radius 1
     }
     MaterialIndex 1
     Sphere {

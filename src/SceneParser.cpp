@@ -16,6 +16,7 @@
 #include "Triangle.h"
 #include "Transform.h"
 #include "Cylinder.h"
+#include "Circle.h"
 
 #define DegreesToRadians(x) ((M_PI * x) / 180.0f)
 
@@ -268,6 +269,8 @@ Object3D* SceneParser::parseObject(char token[MAX_PARSER_TOKEN_LENGTH]) {
         answer = (Object3D*)parseTransform();
     } else if (!strcmp(token, "Cylinder")) {
         answer = (Object3D*)parseCylinder();
+    } else if (!strcmp(token, "Circle")) {
+        answer = (Object3D*)parseCircle();
     } else {
         printf ("Unknown token in parseObject: '%s'\n", token);
         exit(0);
@@ -451,6 +454,21 @@ Cylinder* SceneParser::parseCylinder()
     getToken(token); assert (!strcmp(token, "}"));
     assert (current_material != NULL);
     return new Cylinder(endpoint_1,endpoint_2,radius,current_material);
+}
+
+Circle* SceneParser::parseCircle()
+{
+    char token[MAX_PARSER_TOKEN_LENGTH];
+    getToken(token); assert (!strcmp(token, "{"));
+    getToken(token); assert (!strcmp(token, "normal"));
+    Vector3f normal = readVector3f();
+    getToken(token); assert (!strcmp(token, "center"));
+    Vector3f center = readVector3f();
+    getToken(token); assert (!strcmp(token, "radius"));
+    float radius = readFloat();
+    getToken(token); assert (!strcmp(token, "}"));
+    assert (current_material != NULL);
+    return new Circle(normal,center,radius,current_material);
 }
 
 // ====================================================================
