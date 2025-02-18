@@ -2,6 +2,7 @@
 #define CYLINDER_H
 
 #include "Object3D.h"
+#include "QuadraticFormula.h"
 #include <vecmath.h>
 #include <cmath>
 
@@ -38,18 +39,18 @@ public:
         float b = 2 * Vector3f::dot(A, B);
         float c = Vector3f::dot(B, B) - (radius * radius);
 
-        float d_sqr = (b * b) - (4 * a * c);
+        float discriminant = Quadratic::discriminant(a, b, c);
 
         // Zero hits
-        if (d_sqr < 0)
+        if (discriminant < 0)
         {
             return false;
         }
 
         // One hit
-        if (d_sqr == 0)
+        if (discriminant == 0)
         {
-            float t = -b / (2 * a);
+            float t = Quadratic::root(a, b);
 
             if (t < tmin || t > hit.getT())
             {
@@ -58,15 +59,14 @@ public:
 
             Vector3f p = r.pointAtParameter(t);
             Vector3f p_minus_center = p - center;
-            float DISTANCE = Vector3f::dot(p_minus_center, normal);
-            float DISTANCE_BETWEEN_ENDPOINTS = (endpoint_2 - endpoint_1).abs();
+            float projected_height = Vector3f::dot(p_minus_center, normal);
 
-            if (DISTANCE < 0 || DISTANCE > DISTANCE_BETWEEN_ENDPOINTS)
+            if (projected_height < 0 || projected_height > height)
             {
                 return false;
             }
 
-            Vector3f normal_at_hit = p - (DISTANCE * normal + center);
+            Vector3f normal_at_hit = p - (projected_height * normal + center);
             normal_at_hit.normalize();
 
             hit.set(t, material, normal_at_hit);
@@ -76,23 +76,22 @@ public:
 
         // Two hits
 
-        float d = std::sqrt(d_sqr);
-        float t_plus = (-b + d) / (2 * a);
-        float t_minus = (-b - d) / (2 * a);
+        float discriminant_sqrt = std::sqrt(discriminant);
+        float t_plus = Quadratic::rootRight(a, b, discriminant_sqrt);
+        float t_minus = Quadratic::rootLeft(a, b, discriminant_sqrt);
 
         if (t_plus < t_minus && t_plus >= tmin && t_plus < hit.getT())
         {
             Vector3f p = r.pointAtParameter(t_plus);
             Vector3f p_minus_center = p - center;
-            float DISTANCE = Vector3f::dot(p_minus_center, normal);
-            float DISTANCE_BETWEEN_ENDPOINTS = (endpoint_2 - endpoint_1).abs();
+            float projected_height = Vector3f::dot(p_minus_center, normal);
 
-            if (DISTANCE < 0 || DISTANCE > DISTANCE_BETWEEN_ENDPOINTS)
+            if (projected_height < 0 || projected_height > height)
             {
                 return false;
             }
 
-            Vector3f normal_at_hit = p - (DISTANCE * normal + center);
+            Vector3f normal_at_hit = p - (projected_height * normal + center);
             normal_at_hit.normalize();
 
             hit.set(t_plus, material, normal_at_hit);
@@ -104,15 +103,14 @@ public:
         {
             Vector3f p = r.pointAtParameter(t_minus);
             Vector3f p_minus_center = p - center;
-            float DISTANCE = Vector3f::dot(p_minus_center, normal);
-            float DISTANCE_BETWEEN_ENDPOINTS = (endpoint_2 - endpoint_1).abs();
+            float projected_height = Vector3f::dot(p_minus_center, normal);
 
-            if (DISTANCE < 0 || DISTANCE > DISTANCE_BETWEEN_ENDPOINTS)
+            if (projected_height < 0 || projected_height > height)
             {
                 return false;
             }
             
-            Vector3f normal_at_hit = p - (DISTANCE * normal + center);
+            Vector3f normal_at_hit = p - (projected_height * normal + center);
             normal_at_hit.normalize();
 
             hit.set(t_minus, material, normal_at_hit);
@@ -122,6 +120,15 @@ public:
 
         return false;
     }
+
+private:
+    Vector3f endpoint_1;
+    Vector3f endpoint_2;
+    Vector3f normal;
+    float radius;
+    float height;
+    Vector3f tex_orin;
+    Vector3f z;
 
     Vector2f getTexCoord(const Vector3f& p)
     {
@@ -139,15 +146,6 @@ public:
 
         return Vector2f(u,v);
     }
-
-private:
-    Vector3f endpoint_1;
-    Vector3f endpoint_2;
-    Vector3f normal;
-    float radius;
-    float height;
-    Vector3f tex_orin;
-    Vector3f z;
 };
 
 #endif
