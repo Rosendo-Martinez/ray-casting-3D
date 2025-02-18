@@ -2,6 +2,7 @@
 #define SPHERE_H
 
 #include "Object3D.h"
+#include "QuadraticFormula.h"
 #include <vecmath.h>
 #include <cmath>
 #include <iostream>
@@ -32,20 +33,20 @@ public:
 		float a = rd_dot_rd;
 		float b = 2 * (rd_dot_ro - rd_dot_c);
 		float c = ro_dot_ro + (-2.0f * ro_dot_c) + c_dot_c - (radius * radius);
-		float d_squared = (b * b) - (4 * a * c);
+		float discriminant = Quadratic::discriminant(a, b, c);
 
 		// Case: no intersection
 
-		if (d_squared < 0)
+		if (discriminant < 0)
 		{
 			return false;
 		}
 
 		// Case: intersection at 1 point
 
-		if (d_squared == 0)
+		if (discriminant == 0)
 		{
-			float t = (-b) / (2 * a);
+			float t = Quadratic::root(a, b);
 			bool legalT = t >= tmin;
 			bool closerHit = t < h.getT();
 
@@ -62,9 +63,9 @@ public:
 
 		// Case: intersection at 2 points
 
-		float d = std::sqrt(d_squared);
-		float t_plus = (-b + d) / (2 * a);
-		float t_minus = (-b - d) / (2 * a);
+		float discriminant_sqrt = std::sqrt(discriminant);
+		float t_plus = Quadratic::rootRight(a, b, discriminant_sqrt);
+		float t_minus = Quadratic::rootLeft(a, b, discriminant_sqrt);
 
 		bool tPlus_closer_then_tMinus = t_plus < t_minus;
 		bool tPlus_legalT = t_plus >= tmin;
