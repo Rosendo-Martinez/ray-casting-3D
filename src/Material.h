@@ -7,8 +7,8 @@
 #include "Ray.h"
 #include "Hit.h"
 #include "texture.hpp"
-///TODO:
-///Implement Shade function that uses ambient, diffuse, specular and texture
+
+
 class Material
 {
 public:
@@ -25,21 +25,30 @@ public:
     return diffuseColor;
   }
 
+  // Uses diffuse, specular and texture for shading.
   Vector3f Shade(const Ray& ray, const Hit& hit, const Vector3f& dirToLight, const Vector3f& lightColor)
   {
-    Vector3f reflected = (ray.getDirection() - 2 * (Vector3f::dot(ray.getDirection(), hit.getNormal())) * hit.getNormal()).normalized();
+    Vector3f rd = ray.getDirection();
+    Vector3f n = hit.getNormal();
+    float rd_dot_n = Vector3f::dot(rd, n);
+
+    // reflected vector
+    Vector3f reflected = rd - (2 * rd_dot_n * n);
+    reflected.normalize();
 
     float specular = pow(clamp(Vector3f::dot(reflected, dirToLight), 0.0f, 1.0f), shininess);
     float diffuse = clamp(Vector3f::dot(dirToLight, hit.getNormal()), 0.0f, 1.0f);
 
-    // Is this wrong? use hit.hasTex instead?
-    if (t.valid())
+    if (t.valid()) // has texture
     {
-      Vector2f tex = hit.texCoord;
-      return (diffuse * lightColor) * t(tex.x(), tex.y()) + (specular * lightColor) * specularColor;
-    }
+      Vector3f texture = t(hit.texCoord.x(), hit.texCoord.y());
 
-    return (diffuse * lightColor) * this->getDiffuseColor() + (specular * lightColor) * specularColor;
+      return (diffuse * lightColor * texture) + (specular * lightColor * specularColor);
+    }
+    else // no texture, use diffuse color
+    {
+      return (diffuse * lightColor * diffuseColor) + (specular * lightColor * specularColor);
+    }
   }
 
   void loadTexture(const char * filename)
@@ -53,7 +62,6 @@ protected:
   float shininess;
   Texture t;
 };
-
 
 
 #endif // MATERIAL_H
