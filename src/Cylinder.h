@@ -18,6 +18,7 @@ public:
         this->normal = (endpoint_2 - endpoint_1).normalized();
         this->tex_orin = tex_orin.normalized();
         this->z = Vector3f::cross(this->normal, this->tex_orin).normalized();
+        this->height = (endpoint_2 - endpoint_1).abs();
     }
 
     virtual bool intersect(const Ray& r, Hit& hit, float tmin)
@@ -68,18 +69,8 @@ public:
             Vector3f normal_at_hit = p - (DISTANCE * normal + center);
             normal_at_hit.normalize();
 
-            float x = Vector3f::dot(p_minus_center, tex_orin);
-            float y = Vector3f::dot(p_minus_center, z);
-            float angle = atan2(y, x); // [-pi, +pi]
-
-            // sin() would be non-linear mapping!
-
-            // Linear mappings!
-            float u = (1.0f/(2.0f*M_PI)) * angle + 0.5f; 
-            float v = DISTANCE / DISTANCE_BETWEEN_ENDPOINTS;
-
             hit.set(t, material, normal_at_hit);
-            hit.setTexCoord(Vector2f(u,v));
+            hit.setTexCoord(getTexCoord(p));
             return true;
         }
 
@@ -104,20 +95,8 @@ public:
             Vector3f normal_at_hit = p - (DISTANCE * normal + center);
             normal_at_hit.normalize();
 
-            // hit.set(t_plus, material, normal_at_hit);
-
-            float x = Vector3f::dot(p_minus_center, tex_orin);
-            float y = Vector3f::dot(p_minus_center, z);
-            float angle = atan2(y, x); // [-pi, +pi]
-
-            // sin() would be non-linear mapping!
-
-            // Linear mappings!
-            float u = (1.0f/(2.0f*M_PI)) * angle + 0.5f; 
-            float v = DISTANCE / DISTANCE_BETWEEN_ENDPOINTS;
-
             hit.set(t_plus, material, normal_at_hit);
-            hit.setTexCoord(Vector2f(u,v));
+            hit.setTexCoord(getTexCoord(p));
             return true;
         }
 
@@ -136,24 +115,29 @@ public:
             Vector3f normal_at_hit = p - (DISTANCE * normal + center);
             normal_at_hit.normalize();
 
-            // hit.set(t_minus, material, normal_at_hit);
-            
-            float x = Vector3f::dot(p_minus_center, tex_orin);
-            float y = Vector3f::dot(p_minus_center, z);
-            float angle = atan2(y, x); // [-pi, +pi]
-
-            // sin() would be non-linear mapping!
-
-            // Linear mappings!
-            float u = (1.0f/(2.0f*M_PI)) * angle + 0.5f; 
-            float v = DISTANCE / DISTANCE_BETWEEN_ENDPOINTS;
-
             hit.set(t_minus, material, normal_at_hit);
-            hit.setTexCoord(Vector2f(u,v));
+            hit.setTexCoord(getTexCoord(p));
             return true;
         }
 
         return false;
+    }
+
+    Vector2f getTexCoord(const Vector3f& p)
+    {
+        constexpr float one_over_two_pi = (1.0f/(2.0f*M_PI));
+        Vector3f p_minus_e1 = p - endpoint_1;
+
+        float projected_height = Vector3f::dot(p_minus_e1, normal);
+        float projected_x = Vector3f::dot(p_minus_e1, tex_orin);
+        float projected_y = Vector3f::dot(p_minus_e1, z);
+        float angle = atan2(projected_y, projected_x); // [-pi, +pi]
+
+        // Linear mappings from world to UV coordinates
+        float u = one_over_two_pi * angle + 0.5f; // [0, 1]
+        float v = projected_height / height; // [0, 1]
+
+        return Vector2f(u,v);
     }
 
 private:
@@ -161,6 +145,7 @@ private:
     Vector3f endpoint_2;
     Vector3f normal;
     float radius;
+    float height;
     Vector3f tex_orin;
     Vector3f z;
 };
