@@ -11,13 +11,14 @@ class Cylinder : public Object3D
 public:
     Cylinder() {}
 
+    /**
+     * tex_orin is used to orientate the texture on the cylinder.
+     */
     Cylinder(const Vector3f& e1, const Vector3f& e2, float radius, const Vector3f& tex_orin, Material* m)
         : Object3D(m), endpoint_1(e1), endpoint_2(e2), radius(radius)
     {
-        // For now: I will make alot of assumptions about tex_orin!
-
-        this->normal = (endpoint_2 - endpoint_1).normalized();
         this->tex_orin = tex_orin.normalized();
+        this->normal = (endpoint_2 - endpoint_1).normalized();
         this->z = Vector3f::cross(this->normal, this->tex_orin).normalized();
         this->height = (endpoint_2 - endpoint_1).abs();
     }
