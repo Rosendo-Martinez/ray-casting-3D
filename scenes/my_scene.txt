@@ -25,7 +25,7 @@ Materials {
         diffuseColor 1 1 1 
         specularColor 1 1 1
         shininess 20
-        texture tex/looted-cheesecake.bmp
+        texture tex/looted-cheesecake2.bmp
     }
 }
 
@@ -36,6 +36,6 @@ Group {
         endpoint 0 -1.5 0
         endpoint 0 1.5 0
         radius 2
-        tex_orin 1 0 0
+        tex_orin -1 0 0
     }
 }
