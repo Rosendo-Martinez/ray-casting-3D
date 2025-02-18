@@ -68,6 +68,10 @@ public:
 		texCoord = coord;
 	}
 
+    /**
+     * Why should hit have hasTex?
+     * shouldn't that be determined by wether the material has valid texture?
+     */
 	bool hasTex;
 	Vector2f texCoord;
 private:

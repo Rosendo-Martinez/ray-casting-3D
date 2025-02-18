@@ -32,7 +32,8 @@ public:
     float specular = pow(clamp(Vector3f::dot(reflected, dirToLight), 0.0f, 1.0f), shininess);
     float diffuse = clamp(Vector3f::dot(dirToLight, hit.getNormal()), 0.0f, 1.0f);
 
-    if (hit.hasTex)
+    // Is this wrong? use hit.hasTex instead?
+    if (t.valid())
     {
       Vector2f tex = hit.texCoord;
       return (diffuse * lightColor) * t(tex.x(), tex.y()) + (specular * lightColor) * specularColor;

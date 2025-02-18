@@ -43,6 +43,7 @@ Group {
         endpoint 0 5 0
         endpoint 0 -2 0
         radius 0.1
+        tex_orin 0 1 0
     }
     Circle {
         normal 0 0 1

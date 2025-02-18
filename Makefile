@@ -41,3 +41,6 @@ render5: $(PROG)
 
 render8: $(PROG)
 	$(PROG) -input ./scenes/scene08_c.txt -output ./images-mine/image.bmp -size 500 500 -depth ./images-mine/depth.bmp 8 10 -normals ./images-mine/normals.bmp
+
+renderMy: $(PROG)
+	$(PROG) -input ./scenes/my_scene.txt -output ./images-mine/image.bmp -size 500 500 -depth ./images-mine/depth.bmp 6.5 11.25 -normals ./images-mine/normals.bmp

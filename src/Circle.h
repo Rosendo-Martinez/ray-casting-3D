@@ -50,6 +50,8 @@ public:
         }
 
 		h.set(t, material, normal);
+		
+
 		return true;
 	}
 

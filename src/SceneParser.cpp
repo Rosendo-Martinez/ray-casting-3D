@@ -451,9 +451,11 @@ Cylinder* SceneParser::parseCylinder()
     Vector3f endpoint_2 = readVector3f();
     getToken(token); assert (!strcmp(token, "radius"));
     float radius = readFloat();
+    getToken(token); assert (!strcmp(token, "tex_orin"));
+    Vector3f tex_orin = readVector3f();
     getToken(token); assert (!strcmp(token, "}"));
     assert (current_material != NULL);
-    return new Cylinder(endpoint_1,endpoint_2,radius,current_material);
+    return new Cylinder(endpoint_1,endpoint_2,radius, tex_orin, current_material);
 }
 
 Circle* SceneParser::parseCircle()
