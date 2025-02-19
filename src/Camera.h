@@ -62,52 +62,27 @@ private:
 class OrthographicCamera : public Camera
 {
 public:
-	OrthographicCamera(Vector3f center, Vector3f direction, Vector3f up, float aspect, float scaling)
+	OrthographicCamera(const Vector3f& center, const Vector3f& direction, const Vector3f& up, float aspect, float scaling)
 	{
 		this->center = center;
 		this->direction = direction.normalized();
 
-		this->horizontal = Vector3f::cross(this->direction, up).normalized();
-		this->up = Vector3f::cross(this->horizontal, this->direction).normalized();
+		float half_height_vs = scaling / 2.0f;
+		float half_width_vs = aspect * scaling / 2.0f;
 
-		this->aspect = aspect;
-		this->scaling = scaling;
-
-		std::cout << "Hello From Ortho Cam!\n";
-		std::cout << "center: "; this->center.print();
-		std::cout << "dir: "; this->direction.print();
-		std::cout << "hor: "; this->horizontal.print();
-		std::cout << "up: "; this->up.print();
-		std::cout << "aspect: " << this->aspect << '\n';
-		std::cout << "scaling: " << this->scaling << '\n';
+		this->horizontal = Vector3f::cross(this->direction, up).normalized() * half_width_vs;
+		this->up = Vector3f::cross(this->horizontal, this->direction).normalized() * half_height_vs;
 	};
 
 	virtual Ray generateRay(const Vector2f& point)
 	{
-		// vs = virtual screen
-		float height_vs = scaling;
-		float width_vs = aspect * scaling;
-
-		// Map from image to virtual image.
-		float x_vs = (width_vs / 2.0f) * point.x();
-		float y_vs = (height_vs / 2.0f) * point.y();
-
-		Vector3f ray_base = (y_vs * up) + (x_vs * horizontal) + center;
-		ray_base.print();
-		
-		Ray ray (ray_base, direction);
-
-		return ray;
+		return Ray((point.x() * horizontal) + (point.y() * up) + center, direction);
 	}
 
 	virtual float getTMin() const
 	{
 		return 0.0f;
 	}
-
-private:
-	float aspect; // width / height
-	float scaling;
 };
 
 #endif //CAMERA_H
