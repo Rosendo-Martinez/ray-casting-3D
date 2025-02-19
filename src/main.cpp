@@ -185,9 +185,6 @@ bool handleUserInput(int argc, char* argv[])
     }
     else if (strcmp(argv[argNum], "-normals") == 0)
     {
-      std::cout << argv[argNum] << '\n';
-      std::cout << argv[argNum + 1] << '\n';
-
       argNum++;
       input.NORMALS_FILE = argv[argNum];
     }
