@@ -4,7 +4,7 @@ OrthographicCamera {
     direction -.16 -.12 -.5
     up 0 1 0
     aspect 1.0
-    scaling 2.0
+    scaling 15.0
 }
 
 Lights {
