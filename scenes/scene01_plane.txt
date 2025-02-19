@@ -49,6 +49,7 @@ Group {
         normal 0 0 1
         center -2 1 0
         radius 1
+        tex_orin 1 0 0
     }
     MaterialIndex 1
     Sphere {

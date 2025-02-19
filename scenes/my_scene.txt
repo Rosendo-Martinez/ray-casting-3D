@@ -25,17 +25,17 @@ Materials {
         diffuseColor 1 1 1 
         specularColor 1 1 1
         shininess 20
-        texture tex/looted-cheesecake2.bmp
+        texture tex/looted-cheesecake.bmp
     }
 }
 
 Group {
     numObjects 1
     MaterialIndex 0
-    Cylinder {
-        endpoint 0 -1.5 0
-        endpoint 0 1.5 0
+    Circle {
+        normal 0 0 1
+        center 0 0 0
         radius 2
-        tex_orin -1 0 0
+        tex_orin 1 0 0
     }
 }

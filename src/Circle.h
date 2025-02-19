@@ -11,7 +11,7 @@ class Circle : public Object3D
 public:
 	Circle() {}
 
-	Circle(const Vector3f& normal, const Vector3f& center, float radius, Material* m) 
+	Circle(const Vector3f& normal, const Vector3f& center, float radius, const Vector3f& tex_orin, Material* m) 
 		: Object3D(m)
 	{
         this->normal = normal.normalized();
@@ -19,6 +19,8 @@ public:
         this->center = center;
 
         this->d = -Vector3f::dot(this->center, this->normal);
+		this->tex_orin = tex_orin.normalized();
+		this->z = Vector3f::cross(this->normal, this->tex_orin).normalized();
     }
 
 	~Circle() {}
@@ -50,16 +52,34 @@ public:
         }
 
 		h.set(t, material, normal);
+		h.setTexCoord(getTexCoord(p));
 		
-
 		return true;
 	}
 
 protected:
 	Vector3f normal = Vector3f(0.0f);
     Vector3f center = Vector3f(0.0f);
+	Vector3f tex_orin;
+	Vector3f z;
     float radiusSquared = 0.0f;
 	float d = 0.0f;
+
+	Vector2f getTexCoord(const Vector3f& p)
+    {
+        constexpr float one_over_two_pi = (1.0f/(2.0f*M_PI));
+        Vector3f p_minus_center = p - center;
+
+        float projected_x = Vector3f::dot(p_minus_center, tex_orin);
+        float projected_y = Vector3f::dot(p_minus_center, z);
+        float angle = atan2(projected_y, projected_x); // [-pi, +pi]
+
+        // Linear mappings from world to UV coordinates
+        float u = one_over_two_pi * angle + 0.5f; // [0, 1]
+        float v = p_minus_center.absSquared() / radiusSquared; // [0, 1]
+
+        return Vector2f(u,v);
+    }
 };
 
 #endif // CIRCLE_H

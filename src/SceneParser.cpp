@@ -468,9 +468,11 @@ Circle* SceneParser::parseCircle()
     Vector3f center = readVector3f();
     getToken(token); assert (!strcmp(token, "radius"));
     float radius = readFloat();
+    getToken(token); assert (!strcmp(token, "tex_orin"));
+    Vector3f tex_orin = readVector3f();
     getToken(token); assert (!strcmp(token, "}"));
     assert (current_material != NULL);
-    return new Circle(normal,center,radius,current_material);
+    return new Circle(normal,center,radius,tex_orin,current_material);
 }
 
 // ====================================================================
