@@ -22,4 +22,4 @@ clean:
 	rm -f *.bak vecmath/src/*.o bin/*.o *.o core.* $(PROG)
 
 renderMy: $(PROG)
-	$(PROG) -input ./scenes-mine/my_scene.txt -output ./image.bmp -size 500 500 -depth ./depth.bmp 6.5 11.25 -normals ./normals.bmp
+	$(PROG) -input ./scenes-mine/s2.txt -output ./image.bmp -size 500 500 -depth ./depth.bmp 5 13.5 -normals ./normals.bmp
