@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# rm *.tga
 rm ./images-solution/*.bmp
 
 ./bin/a4soln -input ./scenes/scene01_plane.txt      -size 500 500 -output ./images-solution/scene-1.bmp

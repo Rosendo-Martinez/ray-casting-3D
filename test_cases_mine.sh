@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# rm *.tga
 rm ./images-mine/perspective/*.bmp
 rm ./images-mine/perspective/depth/*.bmp
 rm ./images-mine/perspective/normals/*.bmp
