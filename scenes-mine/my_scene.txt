@@ -1,9 +1,10 @@
 
-PerspectiveCamera {
+OrthographicCamera {
     center 0 0 10 
     direction 0 0 -1
     up 0 1 0
-    angle 30
+    aspect 1.0
+    scaling 2.0
 }
 
 Lights {
@@ -35,7 +36,7 @@ Group {
     Circle {
         normal 0 0 1
         center 0 0 0
-        radius 2
+        radius 1
         tex_orin 1 0 0
     }
 }

@@ -89,6 +89,7 @@ private:
 
     void parseFile();
     void parsePerspectiveCamera();
+    void parseOrthographicCamera();
     void parseBackground();
     void parseLights();
     Light* parseDirectionalLight();

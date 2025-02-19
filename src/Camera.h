@@ -59,4 +59,55 @@ private:
 	Vector3f virtualScreenOffset;
 };
 
+class OrthographicCamera : public Camera
+{
+public:
+	OrthographicCamera(Vector3f center, Vector3f direction, Vector3f up, float aspect, float scaling)
+	{
+		this->center = center;
+		this->direction = direction.normalized();
+
+		this->horizontal = Vector3f::cross(this->direction, up).normalized();
+		this->up = Vector3f::cross(this->horizontal, this->direction).normalized();
+
+		this->aspect = aspect;
+		this->scaling = scaling;
+
+		std::cout << "Hello From Ortho Cam!\n";
+		std::cout << "center: "; this->center.print();
+		std::cout << "dir: "; this->direction.print();
+		std::cout << "hor: "; this->horizontal.print();
+		std::cout << "up: "; this->up.print();
+		std::cout << "aspect: " << this->aspect << '\n';
+		std::cout << "scaling: " << this->scaling << '\n';
+	};
+
+	virtual Ray generateRay(const Vector2f& point)
+	{
+		// vs = virtual screen
+		float height_vs = scaling;
+		float width_vs = aspect * scaling;
+
+		// Map from image to virtual image.
+		float x_vs = (width_vs / 2.0f) * point.x();
+		float y_vs = (height_vs / 2.0f) * point.y();
+
+		Vector3f ray_base = (y_vs * up) + (x_vs * horizontal) + center;
+		ray_base.print();
+		
+		Ray ray (ray_base, direction);
+
+		return ray;
+	}
+
+	virtual float getTMin() const
+	{
+		return 0.0f;
+	}
+
+private:
+	float aspect; // width / height
+	float scaling;
+};
+
 #endif //CAMERA_H
