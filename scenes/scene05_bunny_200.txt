@@ -38,7 +38,7 @@ Group {
 
     MaterialIndex 0
     TriangleMesh {
-        obj_file ./tex/bunny_200.obj
+        obj_file assets/obj/bunny_200.obj
     }
 }
 
