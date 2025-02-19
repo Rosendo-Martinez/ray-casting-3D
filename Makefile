@@ -2,7 +2,7 @@ CC = g++
 SRCS = $(wildcard src/*.cpp) $(wildcard vecmath/src/*.cpp)
 OBJS = $(SRCS:src/%.cpp=bin/%.o)
 OBJS := $(OBJS:vecmath/src/%.cpp=bin/%.o)  # Correctly rename vecmath objects
-PROG = ./a4
+PROG = ./bin/a4
 CFLAGS = -O2 -Wall -Wextra
 INCFLAGS = -Ivecmath/include
 
