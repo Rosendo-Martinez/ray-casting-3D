@@ -20,21 +20,21 @@ Background {
 }
 
 Materials {
-    numMaterials 1
-    Material { 
-        diffuseColor 1 1 1 
-        specularColor 0 0 0
-        shininess 20
-        texture assets/tex/skybox.bmp
-    }
+    numMaterials 0
 }
 
 Group {
-    numObjects 1
-    MaterialIndex 0
-    SkyBox
-    {
-        center 0 0 0
-        angle 0
-    }
+    numObjects 0
+}
+
+SkyBox
+{
+    center 0 0 0
+    angle 0
+    front assets/tex/front.bmp
+    back assets/tex/back.bmp
+    right assets/tex/right.bmp
+    left assets/tex/left.bmp
+    top assets/tex/top.bmp
+    bottom assets/tex/bottom.bmp
 }

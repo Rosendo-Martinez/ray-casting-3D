@@ -133,8 +133,25 @@ void colorPixel(bool hitSomething, const Hit& hit, int row, int col, Ray ray)
   }
   else // hit nothing
   {
-    colored->SetPixel(col, row, scene->getBackgroundColor());
-    if (normals != nullptr)
+    SkyBox* skybox = scene->getSkyBox();
+    if (skybox != nullptr)
+    {
+      Vector3f color;
+      Vector3f normal;
+      skybox->intersect(ray, color, normal);
+      colored->SetPixel(col, row, color);
+
+      if (normals != nullptr)
+      {
+        normals->SetPixel(col, row, normal);
+      }
+    }
+    else
+    {
+      colored->SetPixel(col, row, scene->getBackgroundColor());
+    }
+
+    if (normals != nullptr && skybox != nullptr)
     {
       normals->SetPixel(col, row, scene->getBackgroundColor());
     }

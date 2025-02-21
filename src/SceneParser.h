@@ -81,6 +81,11 @@ public:
         return group;
     }
 
+    SkyBox* getSkyBox() const
+    {
+        return skybox;
+    }
+
 private:
 
     SceneParser()
@@ -127,6 +132,7 @@ private:
     Material** materials;
     Material* current_material;
     Group* group;
+    SkyBox* skybox;
 };
 
 #endif // SCENE_PARSER_H

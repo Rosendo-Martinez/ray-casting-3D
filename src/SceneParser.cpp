@@ -96,6 +96,8 @@ void SceneParser::parseFile() {
             parseMaterials();
         } else if (!strcmp(token, "Group")) {
             group = parseGroup();
+        } else if (!strcmp(token, "SkyBox")) {
+            skybox = parseSkyBox();
         } else {
             printf ("Unknown token in parseFile: '%s'\n", token);
             exit(0);
@@ -291,8 +293,6 @@ Object3D* SceneParser::parseObject(char token[MAX_PARSER_TOKEN_LENGTH]) {
         answer = (Object3D*)parseCylinder();
     } else if (!strcmp(token, "Circle")) {
         answer = (Object3D*)parseCircle();
-    } else if (!strcmp(token, "SkyBox")) {
-        answer = (Object3D*)parseSkyBox();
     } else if (!strcmp(token, "Square")) {
         answer = (Object3D*)parseSquare();
     } else {
@@ -518,7 +518,7 @@ Square* SceneParser::parseSquare()
     return new Square(normal,center,tex_orin,width,height,current_material);
 }
 
-SkyBox* SceneParser::parseSkyBox()
+SkyBox* SceneParser::parseSkyBox() // TODO: move to better spot
 {
     char token[MAX_PARSER_TOKEN_LENGTH];
     getToken(token); assert (!strcmp(token, "{"));
@@ -527,9 +527,28 @@ SkyBox* SceneParser::parseSkyBox()
     getToken(token); assert (!strcmp(token, "angle"));
     float angle = readFloat();
     float angle_radians = DegreesToRadians(angle);
+
+    Texture* front = new Texture();
+    Texture* back = new Texture();
+    Texture* right = new Texture();
+    Texture* left = new Texture();
+    Texture* top = new Texture();
+    Texture* bottom = new Texture();
+    getToken(token); assert (!strcmp(token, "front"));
+    getToken(token); front->load(token);
+    getToken(token); assert (!strcmp(token, "back"));
+    getToken(token); back->load(token);
+    getToken(token); assert (!strcmp(token, "right"));
+    getToken(token); right->load(token);
+    getToken(token); assert (!strcmp(token, "left"));
+    getToken(token); left->load(token);
+    getToken(token); assert (!strcmp(token, "top"));
+    getToken(token); top->load(token);
+    getToken(token); assert (!strcmp(token, "bottom"));
+    getToken(token); bottom->load(token);
+
     getToken(token); assert (!strcmp(token, "}"));
-    assert (current_material != NULL);
-    return new SkyBox(center,angle_radians,current_material);
+    return new SkyBox(center,angle_radians,front,back,right,left,top,bottom);
 }
 
 // ====================================================================

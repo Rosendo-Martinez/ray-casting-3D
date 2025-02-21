@@ -93,13 +93,13 @@ protected:
 	float d;
 };
 
-class SkyBox : public Object3D
+class SkyBox
 {
 public:
     SkyBox() {}
 
-    SkyBox(const Vector3f& center, float angle, Material* m) 
-        : Object3D(m), center(center)
+    SkyBox(const Vector3f& center, float angle, Texture* front_tex, Texture* back_tex, Texture* right_tex, Texture* left_tex, Texture* top_tex, Texture* bottom_tex)
+        : center(center), front_tex(front_tex), back_tex(back_tex), right_tex(right_tex), left_tex(left_tex), top_tex(top_tex), bottom_tex(bottom_tex)
     {
         std::cout << "Center: "; center.print();
         std::cout << "Angle: " << angle << '\n';
@@ -138,123 +138,71 @@ public:
         float length = 10000; // not sure what a good length for SkyCube would be.
 
         std::cout << "Front:\n";
-        front =  Square(rotate * n_front,  (length/1.9f) * (rotate * c_front) + center,  rotate * orin_front,  length, length, nullptr);
+        front =  Square(rotate * n_front,  (length/2.0f) * (rotate * c_front) + center,  rotate * orin_front,  length, length, nullptr);
         std::cout << "Back:\n";
-        back =   Square(rotate * n_back,   (length/1.9f) * (rotate * c_back) + center,   rotate * orin_back,   length, length, nullptr);
+        back =   Square(rotate * n_back,   (length/2.0f) * (rotate * c_back) + center,   rotate * orin_back,   length, length, nullptr);
         std::cout << "Right:\n";
-        right =  Square(rotate * n_right,  (length/1.9f) * (rotate * c_right) + center,  rotate * orin_right,  length, length, nullptr);
+        right =  Square(rotate * n_right,  (length/2.0f) * (rotate * c_right) + center,  rotate * orin_right,  length, length, nullptr);
         std::cout << "Left:\n";
-        left =   Square(rotate * n_left,   (length/1.9f) * (rotate * c_left) + center,   rotate * orin_left,   length, length, nullptr);
+        left =   Square(rotate * n_left,   (length/2.0f) * (rotate * c_left) + center,   rotate * orin_left,   length, length, nullptr);
         std::cout << "Top:\n";
-        top =    Square(rotate * n_top,    (length/1.9f) * (rotate * c_top) + center,    rotate * orin_top,    length, length, nullptr);
+        top =    Square(rotate * n_top,    (length/2.0f) * (rotate * c_top) + center,    rotate * orin_top,    length, length, nullptr);
         std::cout << "Bottom:\n";
-        bottom = Square(rotate * n_bottom, (length/1.9f) * (rotate * c_bottom) + center, rotate * orin_bottom, length, length, nullptr);
+        bottom = Square(rotate * n_bottom, (length/2.0f) * (rotate * c_bottom) + center, rotate * orin_bottom, length, length, nullptr);
     }
 
     ~SkyBox() {}
 
-    virtual bool intersect(const Ray& r, Hit& h, float tmin)
-    {   
-        float u_width = 1.0f/4.0f;
-        float v_height = 1.0f/3.0f;
+    /**
+     * Intersects the skybox. Returns intersected texture pixel color.
+     */
+    void intersect(const Ray& r, Vector3f& color, Vector3f& normal)
+    {
+        Hit h;
+        float tmin = 0.0f;
 
         if (front.intersect(r,h,tmin))
         {
-            // std::cout << "Front face hit.\n";
-            Vector2f bottom_left (1.0f/4.0f, 1.0f/3.0f);
-            
-            float u = h.texCoord.x() * u_width + bottom_left.x();
-            float v = h.texCoord.y() * v_height + bottom_left.y();
-
-            assert(u >= bottom_left.x() && u <= bottom_left.x() + u_width);
-            assert(v >= bottom_left.y() && v <= bottom_left.y() + v_height);
-
-            h.set(h.getT(), material, h.getNormal());
-            h.setTexCoord(Vector2f(u,v));
-
-            return true;
+            normal = h.getNormal();
+            color = front_tex->operator()(h.texCoord.x(), h.texCoord.y());
+            return;
         }
         else if (back.intersect(r,h,tmin))
         {
-            // std::cout << "Back face hit.\n";
-            Vector2f bottom_left (3.0f/4.0f, 1.0f/3.0f);
-            
-            float u = h.texCoord.x() * u_width + bottom_left.x();
-            float v = h.texCoord.y() * v_height + bottom_left.y();
-
-            assert(u >= bottom_left.x() && u <= bottom_left.x() + u_width);
-            assert(v >= bottom_left.y() && v <= bottom_left.y() + v_height);
-
-            h.set(h.getT(), material, h.getNormal());
-            h.setTexCoord(Vector2f(u,v));
-            return true;
+            normal = h.getNormal();
+            color = back_tex->operator()(h.texCoord.x(), h.texCoord.y());
+            return;
         }
         else if (right.intersect(r,h,tmin))
         {
-            // std::cout << "Right face hit.\n";
-            // re-map uv
-            Vector2f bottom_left (2.0f/4.0f, 1.0f/3.0f);
-            
-            float u = h.texCoord.x() * u_width + bottom_left.x();
-            float v = h.texCoord.y() * v_height + bottom_left.y();
-
-            assert(u >= bottom_left.x() && u <= bottom_left.x() + u_width);
-            assert(v >= bottom_left.y() && v <= bottom_left.y() + v_height);
-
-            h.set(h.getT(), material, h.getNormal());
-            h.setTexCoord(Vector2f(u,v));
-            return true;
+            normal = h.getNormal();
+            color = right_tex->operator()(h.texCoord.x(), h.texCoord.y());
+            return;
         }
         else if (left.intersect(r,h,tmin))
         {
-            // std::cout << "Left face hit.\n";
-            // re-map uv
-            Vector2f bottom_left (0.0f, 1.0f/3.0f);
-            
-            float u = h.texCoord.x() * u_width + bottom_left.x();
-            float v = h.texCoord.y() * v_height + bottom_left.y();
-
-            assert(u >= bottom_left.x() && u <= bottom_left.x() + u_width);
-            assert(v >= bottom_left.y() && v <= bottom_left.y() + v_height);
-
-            h.set(h.getT(), material, h.getNormal());
-            h.setTexCoord(Vector2f(u,v));
-            return true;
+            normal = h.getNormal();
+            color = left_tex->operator()(h.texCoord.x(), h.texCoord.y());
+            return;
         }
         else if (top.intersect(r,h,tmin))
         {
-            // std::cout << "Top face hit.\n";
-            // re-map uv
-            Vector2f bottom_left (1.0f/4.0f, 2.0f/3.0f);
-            
-            float u = h.texCoord.x() * u_width + bottom_left.x();
-            float v = h.texCoord.y() * v_height + bottom_left.y();
-
-            assert(u >= bottom_left.x() && u <= bottom_left.x() + u_width);
-            assert(v >= bottom_left.y() && v <= bottom_left.y() + v_height);
-
-            h.set(h.getT(), material, h.getNormal());
-            h.setTexCoord(Vector2f(u,v));
-            return true;
+            normal = h.getNormal();
+            color = top_tex->operator()(h.texCoord.x(), h.texCoord.y());
+            return;
         }
         else if (bottom.intersect(r,h,tmin))
         {
-            // std::cout << "Bottom face hit.\n";
-            // re-map uv
-            Vector2f bottom_left (1.0f/4.0f, 0.0f);
-            
-            float u = h.texCoord.x() * u_width + bottom_left.x();
-            float v = h.texCoord.y() * v_height + bottom_left.y();
-
-            assert(u >= bottom_left.x() && u <= bottom_left.x() + u_width);
-            assert(v >= bottom_left.y() && v <= bottom_left.y() + v_height);
-
-            h.set(h.getT(), material, h.getNormal());
-            h.setTexCoord(Vector2f(u,v));
-            return true;
+            normal = h.getNormal();
+            color = bottom_tex->operator()(h.texCoord.x(), h.texCoord.y());
+            return;
         }
 
-        return false;
+        std::cout << "ERROR: should have intersected some face of skybox!\n";
+        color = Vector3f(1.0f);
+        normal = Vector3f(0.0f);
+
+        return;
     }
 
 protected:
@@ -265,6 +213,13 @@ protected:
     Square front;
     Square back;
     Vector3f center;
+
+    Texture* front_tex;
+    Texture* back_tex;
+    Texture* right_tex;
+    Texture* left_tex;
+    Texture* top_tex;
+    Texture* bottom_tex;
 };
 
 #endif
