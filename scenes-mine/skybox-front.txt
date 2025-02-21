@@ -1,0 +1,40 @@
+
+PerspectiveCamera {
+    center 0 0 0
+    direction 0 0 -1
+    up 0 1 0
+    angle 120
+}
+
+Lights {
+    numLights 1
+    PointLight {
+        position 0.0 5 5
+        color 1.0 1.0 1.0 
+    }
+}
+
+Background {
+    color 1 0 0 
+    ambientLight 0.0 0.0 0.0 
+}
+
+Materials {
+    numMaterials 1
+    Material { 
+        diffuseColor 1 1 1 
+        specularColor 0 0 0
+        shininess 20
+        texture assets/tex/skybox.bmp
+    }
+}
+
+Group {
+    numObjects 1
+    MaterialIndex 0
+    SkyBox
+    {
+        center 0 0 0
+        angle 0
+    }
+}

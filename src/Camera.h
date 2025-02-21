@@ -5,7 +5,7 @@
 #include <vecmath.h>
 #include <float.h>
 #include <cmath>
-
+#include <cassert>
 
 class Camera
 {
@@ -28,6 +28,9 @@ class PerspectiveCamera: public Camera
 public:
 	PerspectiveCamera(const Vector3f& center, const Vector3f& direction, const Vector3f& up, float angle)
 	{
+		// MY ASSUMPTION!
+		assert((direction.normalized() != up.normalized()) && (direction.normalized() != -up.normalized()));
+
 		this->center = center; // camera position
 		this->fov = angle; // radians, horizontal
 		this->direction = direction.normalized(); // looking at
