@@ -2,6 +2,7 @@
 #define SKYBOX_H
 
 #include "Object3D.h"
+#include <cassert>
 
 class Square : public Object3D
 {   
@@ -74,6 +75,9 @@ public:
             std::cout << "u,v = " << u << ','<< v << '\n';
         }
 
+        assert(u >= 0.0f && u <= 1.0f);
+        assert(v >= 0.0f && v <= 1.0f);
+
         h.setTexCoord(Vector2f(u,v));
 		h.set(t, material, normal);
 		return true;
@@ -134,17 +138,17 @@ public:
         float length = 10000; // not sure what a good length for SkyCube would be.
 
         std::cout << "Front:\n";
-        front =  Square(rotate * n_front,  (length/2.0f) * (rotate * c_front) + center,  rotate * orin_front,  length, length, nullptr);
+        front =  Square(rotate * n_front,  (length/1.9f) * (rotate * c_front) + center,  rotate * orin_front,  length, length, nullptr);
         std::cout << "Back:\n";
-        back =   Square(rotate * n_back,   (length/2.0f) * (rotate * c_back) + center,   rotate * orin_back,   length, length, nullptr);
+        back =   Square(rotate * n_back,   (length/1.9f) * (rotate * c_back) + center,   rotate * orin_back,   length, length, nullptr);
         std::cout << "Right:\n";
-        right =  Square(rotate * n_right,  (length/2.0f) * (rotate * c_right) + center,  rotate * orin_right,  length, length, nullptr);
+        right =  Square(rotate * n_right,  (length/1.9f) * (rotate * c_right) + center,  rotate * orin_right,  length, length, nullptr);
         std::cout << "Left:\n";
-        left =   Square(rotate * n_left,   (length/2.0f) * (rotate * c_left) + center,   rotate * orin_left,   length, length, nullptr);
+        left =   Square(rotate * n_left,   (length/1.9f) * (rotate * c_left) + center,   rotate * orin_left,   length, length, nullptr);
         std::cout << "Top:\n";
-        top =    Square(rotate * n_top,    (length/2.0f) * (rotate * c_top) + center,    rotate * orin_top,    length, length, nullptr);
+        top =    Square(rotate * n_top,    (length/1.9f) * (rotate * c_top) + center,    rotate * orin_top,    length, length, nullptr);
         std::cout << "Bottom:\n";
-        bottom = Square(rotate * n_bottom, (length/2.0f) * (rotate * c_bottom) + center, rotate * orin_bottom, length, length, nullptr);
+        bottom = Square(rotate * n_bottom, (length/1.9f) * (rotate * c_bottom) + center, rotate * orin_bottom, length, length, nullptr);
     }
 
     ~SkyBox() {}
@@ -162,14 +166,8 @@ public:
             float u = h.texCoord.x() * u_width + bottom_left.x();
             float v = h.texCoord.y() * v_height + bottom_left.y();
 
-            if (u > bottom_left.x() + u_width || u > 1.0f)
-            {
-                std::cout << "ERROR: u is too big: " << u << '\n';
-            }
-            if (v > bottom_left.y() + v_height || v > 1.0f)
-            {
-                std::cout << "ERROR: v is too big: " << v << '\n';
-            }
+            assert(u >= bottom_left.x() && u <= bottom_left.x() + u_width);
+            assert(v >= bottom_left.y() && v <= bottom_left.y() + v_height);
 
             h.set(h.getT(), material, h.getNormal());
             h.setTexCoord(Vector2f(u,v));
@@ -184,14 +182,8 @@ public:
             float u = h.texCoord.x() * u_width + bottom_left.x();
             float v = h.texCoord.y() * v_height + bottom_left.y();
 
-            if (u > bottom_left.x() + u_width || u > 1.0f)
-            {
-                std::cout << "ERROR: u is too big: " << u << '\n';
-            }
-            if (v > bottom_left.y() + v_height || v > 1.0f)
-            {
-                std::cout << "ERROR: v is too big: " << v << '\n';
-            }
+            assert(u >= bottom_left.x() && u <= bottom_left.x() + u_width);
+            assert(v >= bottom_left.y() && v <= bottom_left.y() + v_height);
 
             h.set(h.getT(), material, h.getNormal());
             h.setTexCoord(Vector2f(u,v));
@@ -206,14 +198,8 @@ public:
             float u = h.texCoord.x() * u_width + bottom_left.x();
             float v = h.texCoord.y() * v_height + bottom_left.y();
 
-            if (u > bottom_left.x() + u_width || u > 1.0f)
-            {
-                std::cout << "ERROR: u is too big: " << u << '\n';
-            }
-            if (v > bottom_left.y() + v_height || v > 1.0f)
-            {
-                std::cout << "ERROR: v is too big: " << v << '\n';
-            }
+            assert(u >= bottom_left.x() && u <= bottom_left.x() + u_width);
+            assert(v >= bottom_left.y() && v <= bottom_left.y() + v_height);
 
             h.set(h.getT(), material, h.getNormal());
             h.setTexCoord(Vector2f(u,v));
@@ -228,14 +214,8 @@ public:
             float u = h.texCoord.x() * u_width + bottom_left.x();
             float v = h.texCoord.y() * v_height + bottom_left.y();
 
-            if (u > bottom_left.x() + u_width || u > 1.0f)
-            {
-                std::cout << "ERROR: u is too big: " << u << '\n';
-            }
-            if (v > bottom_left.y() + v_height || v > 1.0f)
-            {
-                std::cout << "ERROR: v is too big: " << v << '\n';
-            }
+            assert(u >= bottom_left.x() && u <= bottom_left.x() + u_width);
+            assert(v >= bottom_left.y() && v <= bottom_left.y() + v_height);
 
             h.set(h.getT(), material, h.getNormal());
             h.setTexCoord(Vector2f(u,v));
@@ -250,14 +230,8 @@ public:
             float u = h.texCoord.x() * u_width + bottom_left.x();
             float v = h.texCoord.y() * v_height + bottom_left.y();
 
-            if (u > bottom_left.x() + u_width || u > 1.0f)
-            {
-                std::cout << "ERROR: u is too big: " << u << '\n';
-            }
-            if (v > bottom_left.y() + v_height || v > 1.0f)
-            {
-                std::cout << "ERROR: v is too big: " << v << '\n';
-            }
+            assert(u >= bottom_left.x() && u <= bottom_left.x() + u_width);
+            assert(v >= bottom_left.y() && v <= bottom_left.y() + v_height);
 
             h.set(h.getT(), material, h.getNormal());
             h.setTexCoord(Vector2f(u,v));
@@ -272,14 +246,8 @@ public:
             float u = h.texCoord.x() * u_width + bottom_left.x();
             float v = h.texCoord.y() * v_height + bottom_left.y();
 
-            if (u > bottom_left.x() + u_width || u > 1.0f)
-            {
-                std::cout << "ERROR: u is too big: " << u << '\n';
-            }
-            if (v > bottom_left.y() + v_height || v > 1.0f)
-            {
-                std::cout << "ERROR: v is too big: " << v << '\n';
-            }
+            assert(u >= bottom_left.x() && u <= bottom_left.x() + u_width);
+            assert(v >= bottom_left.y() && v <= bottom_left.y() + v_height);
 
             h.set(h.getT(), material, h.getNormal());
             h.setTexCoord(Vector2f(u,v));
