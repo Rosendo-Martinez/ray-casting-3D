@@ -17,6 +17,7 @@
 #include "Transform.h"
 #include "Cylinder.h"
 #include "Circle.h"
+#include "Skybox.h"
 
 /*
 class Camera;
@@ -106,6 +107,9 @@ private:
     Transform* parseTransform();
     Cylinder* parseCylinder();
     Circle* parseCircle();
+    Square* parseSquare();
+    SkyBox* parseSkyBox();
+
 
     int getToken( char token[ MAX_PARSER_TOKEN_LENGTH ] );
     Vector3f readVector3f();

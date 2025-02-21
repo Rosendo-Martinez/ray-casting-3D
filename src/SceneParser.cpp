@@ -291,6 +291,10 @@ Object3D* SceneParser::parseObject(char token[MAX_PARSER_TOKEN_LENGTH]) {
         answer = (Object3D*)parseCylinder();
     } else if (!strcmp(token, "Circle")) {
         answer = (Object3D*)parseCircle();
+    } else if (!strcmp(token, "SkyBox")) {
+        answer = (Object3D*)parseSkyBox();
+    } else if (!strcmp(token, "Square")) {
+        answer = (Object3D*)parseSquare();
     } else {
         printf ("Unknown token in parseObject: '%s'\n", token);
         exit(0);
@@ -493,6 +497,39 @@ Circle* SceneParser::parseCircle()
     getToken(token); assert (!strcmp(token, "}"));
     assert (current_material != NULL);
     return new Circle(normal,center,radius,tex_orin,current_material);
+}
+
+Square* SceneParser::parseSquare()
+{
+    char token[MAX_PARSER_TOKEN_LENGTH];
+    getToken(token); assert (!strcmp(token, "{"));
+    getToken(token); assert (!strcmp(token, "normal"));
+    Vector3f normal = readVector3f();
+    getToken(token); assert (!strcmp(token, "center"));
+    Vector3f center = readVector3f();
+    getToken(token); assert (!strcmp(token, "tex_orin"));
+    Vector3f tex_orin = readVector3f();
+    getToken(token); assert (!strcmp(token, "width"));
+    float width = readFloat();
+    getToken(token); assert (!strcmp(token, "height"));
+    float height = readFloat();
+    getToken(token); assert (!strcmp(token, "}"));
+    assert (current_material != NULL);
+    return new Square(normal,center,tex_orin,width,height,current_material);
+}
+
+SkyBox* SceneParser::parseSkyBox()
+{
+    char token[MAX_PARSER_TOKEN_LENGTH];
+    getToken(token); assert (!strcmp(token, "{"));
+    getToken(token); assert (!strcmp(token, "center"));
+    Vector3f center = readVector3f();
+    getToken(token); assert (!strcmp(token, "angle"));
+    float angle = readFloat();
+    float angle_radians = DegreesToRadians(angle);
+    getToken(token); assert (!strcmp(token, "}"));
+    assert (current_material != NULL);
+    return new SkyBox(center,angle_radians,current_material);
 }
 
 // ====================================================================
