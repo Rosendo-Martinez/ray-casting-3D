@@ -14,21 +14,17 @@ public:
 	{
         this->horizontal = orientation.normalized();
         this->vertical = Vector3f::cross(normal, this->horizontal).normalized();
-        this->d = Vector3f::dot(center, normal);
-
-        std::cout << "  center: "; center.print();
-        std::cout << "  normal: "; normal.print();
-        std::cout << "  orien: "; orientation.print();
-        std::cout << "  dimensions: " << width << ' ' << height << '\n';
-        std::cout << "  d: " << this->d << '\n';
+        this->d = Vector3f::dot(center, normal.normalized());
     }
 
 	~Square() {}
 
 	virtual bool intersect(const Ray& r, Hit& h, float tmin)
 	{
-        // NOTE: MOST of this code copied & pasted from Plane class.
-        //       Maybe instead should have just created a Plane instance, then uses that...
+        // TODO: could just have a Plane() member for this class and call
+        //       Plane().intersection() on it instead of doing plane intersection here (duplicate code).
+
+        // Do ray-plane intersection
 
 		float n_dot_rd = Vector3f::dot(normal, r.getDirection());
 
@@ -41,19 +37,21 @@ public:
 		float n_dot_ro = Vector3f::dot(normal, r.getOrigin());
 		float t = (d - n_dot_ro) / n_dot_rd;
 
+        // Invalid t check
 		if (t < tmin || t > h.getT())
 		{
 			return false;
 		}
 
-        Vector3f p = r.pointAtParameter(t);
+        // Do ray-square intersection
 
+        Vector3f p = r.pointAtParameter(t);
         float horizontal_projected_distance = Vector3f::dot(p - center, horizontal);
         float vertical_projected_distance = Vector3f::dot(p - center, vertical);
-
         float half_width = width / 2.0f;
         float half_height = height / 2.0f;
 
+        // Intersection point in square bounds check
         if 
         (
             horizontal_projected_distance < -half_width || 
@@ -65,16 +63,9 @@ public:
             return false;
         }
 
-        // float u = (horizontal_projected_distance + half_width) / width;
-        // float v = (vertical_projected_distance + half_height) / height;
+        // UV-mapping
         float u = (horizontal_projected_distance / width) + 0.5f;
         float v = (vertical_projected_distance / height) + 0.5f;
-
-        if (u > 1.0f || u < 0.0f || v > 1.0f || v < 0.0f)
-        {
-            std::cout << "u,v = " << u << ','<< v << '\n';
-        }
-
         assert(u >= 0.0f && u <= 1.0f);
         assert(v >= 0.0f && v <= 1.0f);
 
@@ -101,8 +92,7 @@ public:
     SkyBox(const Vector3f& center, float angle, Texture* front_tex, Texture* back_tex, Texture* right_tex, Texture* left_tex, Texture* top_tex, Texture* bottom_tex)
         : center(center), front_tex(front_tex), back_tex(back_tex), right_tex(right_tex), left_tex(left_tex), top_tex(top_tex), bottom_tex(bottom_tex)
     {
-        std::cout << "Center: "; center.print();
-        std::cout << "Angle: " << angle << '\n';
+        // Initialize faces of skycube
 
         Vector3f c_front  (0,0,-1);
         Vector3f c_back   (0,0,1);
@@ -125,38 +115,27 @@ public:
         Vector3f orin_top    (1,0,0);
         Vector3f orin_bottom (1,0,0);
 
+
+        // Rotates skycube about +y-axis at given angle.
         Matrix3f rotate (
             Vector3f(cos(angle), 0, -sin(angle)),
             Vector3f(0,1,0),
             Vector3f(sin(angle), 0, cos(angle))
         );
 
-        std::cout << "Rotation Matrix: \n";
-        rotate.print();
-        std::cout << "------\n";
+        // Big lengths can cause floating point errors!
+        float length = 1;
 
-        // Big lengths can cause floating point errors!!!
-        float length = 1; // not sure what a good length for SkyCube would be.
-
-        std::cout << "Front:\n";
         front =  Square(rotate * n_front,  (length/2.0f) * (rotate * c_front) + center,  rotate * orin_front,  length, length, nullptr);
-        std::cout << "Back:\n";
         back =   Square(rotate * n_back,   (length/2.0f) * (rotate * c_back) + center,   rotate * orin_back,   length, length, nullptr);
-        std::cout << "Right:\n";
         right =  Square(rotate * n_right,  (length/2.0f) * (rotate * c_right) + center,  rotate * orin_right,  length, length, nullptr);
-        std::cout << "Left:\n";
         left =   Square(rotate * n_left,   (length/2.0f) * (rotate * c_left) + center,   rotate * orin_left,   length, length, nullptr);
-        std::cout << "Top:\n";
         top =    Square(rotate * n_top,    (length/2.0f) * (rotate * c_top) + center,    rotate * orin_top,    length, length, nullptr);
-        std::cout << "Bottom:\n";
         bottom = Square(rotate * n_bottom, (length/2.0f) * (rotate * c_bottom) + center, rotate * orin_bottom, length, length, nullptr);
     }
 
     ~SkyBox() {}
 
-    /**
-     * Intersects the skybox. Returns intersected texture pixel color.
-     */
     void intersect(const Ray& r, Vector3f& color, Vector3f& normal)
     {
         Hit h;
@@ -199,9 +178,8 @@ public:
             return;
         }
 
-        std::cout << "ERROR: should have intersected some face of skybox!\n";
-        color = Vector3f(1.0f);
-        normal = Vector3f(0.0f);
+        // Error: should have intersected some face of the skycube!
+        assert(false);
 
         return;
     }
