@@ -151,7 +151,7 @@ void colorPixel(bool hitSomething, const Hit& hit, int row, int col, Ray ray)
       colored->SetPixel(col, row, scene->getBackgroundColor());
     }
 
-    if (normals != nullptr && skybox != nullptr)
+    if (normals != nullptr && skybox == nullptr)
     {
       normals->SetPixel(col, row, scene->getBackgroundColor());
     }

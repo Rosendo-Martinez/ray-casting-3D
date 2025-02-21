@@ -43,8 +43,8 @@ public:
     {
       Vector3f texture = t(hit.texCoord.x(), hit.texCoord.y());
 
-      // return (diffuse * lightColor * texture) + (specular * lightColor * specularColor);
-      return texture;
+      return (diffuse * lightColor * texture) + (specular * lightColor * specularColor);
+      // return texture;
     }
     else // no texture, use diffuse color
     {
