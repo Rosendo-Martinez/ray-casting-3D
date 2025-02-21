@@ -135,7 +135,8 @@ public:
         rotate.print();
         std::cout << "------\n";
 
-        float length = 10000; // not sure what a good length for SkyCube would be.
+        // Big lengths can cause floating point errors!!!
+        float length = 1; // not sure what a good length for SkyCube would be.
 
         std::cout << "Front:\n";
         front =  Square(rotate * n_front,  (length/2.0f) * (rotate * c_front) + center,  rotate * orin_front,  length, length, nullptr);
