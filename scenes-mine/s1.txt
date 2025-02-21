@@ -1,9 +1,9 @@
 
 PerspectiveCamera {
     center 0 0 0
-    direction 1 1 -1
+    direction -1 0 0
     up 0 1 0
-    angle 90
+    angle 120
 }
 
 Lights {
@@ -15,7 +15,7 @@ Lights {
 }
 
 Background {
-    color 0 0 0 
+    color 1 0 0 
     ambientLight 0.0 0.0 0.0 
 }
 

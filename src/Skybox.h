@@ -64,8 +64,15 @@ public:
             return false;
         }
 
-        float u = (horizontal_projected_distance + half_width) / width;
-        float v = (vertical_projected_distance + half_height) / height;
+        // float u = (horizontal_projected_distance + half_width) / width;
+        // float v = (vertical_projected_distance + half_height) / height;
+        float u = (horizontal_projected_distance / width) + 0.5f;
+        float v = (vertical_projected_distance / height) + 0.5f;
+
+        if (u > 1.0f || u < 0.0f || v > 1.0f || v < 0.0f)
+        {
+            std::cout << "u,v = " << u << ','<< v << '\n';
+        }
 
         h.setTexCoord(Vector2f(u,v));
 		h.set(t, material, normal);
@@ -112,7 +119,7 @@ public:
         Vector3f orin_right  (0,0,1);
         Vector3f orin_left   (0,0,-1);
         Vector3f orin_top    (1,0,0);
-        Vector3f orin_bottom (-1,0,0);
+        Vector3f orin_bottom (1,0,0);
 
         Matrix3f rotate (
             Vector3f(cos(angle), 0, -sin(angle)),
@@ -124,7 +131,7 @@ public:
         rotate.print();
         std::cout << "------\n";
 
-        float length = 1000; // not sure what a good length for SkyCube would be.
+        float length = 10000; // not sure what a good length for SkyCube would be.
 
         std::cout << "Front:\n";
         front =  Square(rotate * n_front,  (length/2.0f) * (rotate * c_front) + center,  rotate * orin_front,  length, length, nullptr);
@@ -149,11 +156,20 @@ public:
 
         if (front.intersect(r,h,tmin))
         {
-            std::cout << "Front face hit.\n";
+            // std::cout << "Front face hit.\n";
             Vector2f bottom_left (1.0f/4.0f, 1.0f/3.0f);
             
             float u = h.texCoord.x() * u_width + bottom_left.x();
             float v = h.texCoord.y() * v_height + bottom_left.y();
+
+            if (u > bottom_left.x() + u_width || u > 1.0f)
+            {
+                std::cout << "ERROR: u is too big: " << u << '\n';
+            }
+            if (v > bottom_left.y() + v_height || v > 1.0f)
+            {
+                std::cout << "ERROR: v is too big: " << v << '\n';
+            }
 
             h.set(h.getT(), material, h.getNormal());
             h.setTexCoord(Vector2f(u,v));
@@ -162,11 +178,20 @@ public:
         }
         else if (back.intersect(r,h,tmin))
         {
-            std::cout << "Back face hit.\n";
+            // std::cout << "Back face hit.\n";
             Vector2f bottom_left (3.0f/4.0f, 1.0f/3.0f);
             
             float u = h.texCoord.x() * u_width + bottom_left.x();
             float v = h.texCoord.y() * v_height + bottom_left.y();
+
+            if (u > bottom_left.x() + u_width || u > 1.0f)
+            {
+                std::cout << "ERROR: u is too big: " << u << '\n';
+            }
+            if (v > bottom_left.y() + v_height || v > 1.0f)
+            {
+                std::cout << "ERROR: v is too big: " << v << '\n';
+            }
 
             h.set(h.getT(), material, h.getNormal());
             h.setTexCoord(Vector2f(u,v));
@@ -174,12 +199,21 @@ public:
         }
         else if (right.intersect(r,h,tmin))
         {
-            std::cout << "Right face hit.\n";
+            // std::cout << "Right face hit.\n";
             // re-map uv
             Vector2f bottom_left (2.0f/4.0f, 1.0f/3.0f);
             
             float u = h.texCoord.x() * u_width + bottom_left.x();
             float v = h.texCoord.y() * v_height + bottom_left.y();
+
+            if (u > bottom_left.x() + u_width || u > 1.0f)
+            {
+                std::cout << "ERROR: u is too big: " << u << '\n';
+            }
+            if (v > bottom_left.y() + v_height || v > 1.0f)
+            {
+                std::cout << "ERROR: v is too big: " << v << '\n';
+            }
 
             h.set(h.getT(), material, h.getNormal());
             h.setTexCoord(Vector2f(u,v));
@@ -187,12 +221,21 @@ public:
         }
         else if (left.intersect(r,h,tmin))
         {
-            std::cout << "Left face hit.\n";
+            // std::cout << "Left face hit.\n";
             // re-map uv
             Vector2f bottom_left (0.0f, 1.0f/3.0f);
             
             float u = h.texCoord.x() * u_width + bottom_left.x();
             float v = h.texCoord.y() * v_height + bottom_left.y();
+
+            if (u > bottom_left.x() + u_width || u > 1.0f)
+            {
+                std::cout << "ERROR: u is too big: " << u << '\n';
+            }
+            if (v > bottom_left.y() + v_height || v > 1.0f)
+            {
+                std::cout << "ERROR: v is too big: " << v << '\n';
+            }
 
             h.set(h.getT(), material, h.getNormal());
             h.setTexCoord(Vector2f(u,v));
@@ -200,12 +243,21 @@ public:
         }
         else if (top.intersect(r,h,tmin))
         {
-            std::cout << "Top face hit.\n";
+            // std::cout << "Top face hit.\n";
             // re-map uv
             Vector2f bottom_left (1.0f/4.0f, 2.0f/3.0f);
             
             float u = h.texCoord.x() * u_width + bottom_left.x();
             float v = h.texCoord.y() * v_height + bottom_left.y();
+
+            if (u > bottom_left.x() + u_width || u > 1.0f)
+            {
+                std::cout << "ERROR: u is too big: " << u << '\n';
+            }
+            if (v > bottom_left.y() + v_height || v > 1.0f)
+            {
+                std::cout << "ERROR: v is too big: " << v << '\n';
+            }
 
             h.set(h.getT(), material, h.getNormal());
             h.setTexCoord(Vector2f(u,v));
@@ -213,12 +265,21 @@ public:
         }
         else if (bottom.intersect(r,h,tmin))
         {
-            std::cout << "Bottom face hit.\n";
+            // std::cout << "Bottom face hit.\n";
             // re-map uv
             Vector2f bottom_left (1.0f/4.0f, 0.0f);
             
             float u = h.texCoord.x() * u_width + bottom_left.x();
             float v = h.texCoord.y() * v_height + bottom_left.y();
+
+            if (u > bottom_left.x() + u_width || u > 1.0f)
+            {
+                std::cout << "ERROR: u is too big: " << u << '\n';
+            }
+            if (v > bottom_left.y() + v_height || v > 1.0f)
+            {
+                std::cout << "ERROR: v is too big: " << v << '\n';
+            }
 
             h.set(h.getT(), material, h.getNormal());
             h.setTexCoord(Vector2f(u,v));
