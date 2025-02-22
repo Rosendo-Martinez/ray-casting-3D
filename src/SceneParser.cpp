@@ -354,11 +354,15 @@ Sphere* SceneParser::parseSphere() {
     getToken(token); assert (!strcmp(token, "{"));
     getToken(token); assert (!strcmp(token, "center"));
     Vector3f center = readVector3f();
+    getToken(token); assert (!strcmp(token, "left_edge"));
+    Vector3f left_edge = readVector3f();
+    getToken(token); assert (!strcmp(token, "top_edge"));
+    Vector3f top_edge = readVector3f();
     getToken(token); assert (!strcmp(token, "radius"));
     float radius = readFloat();
     getToken(token); assert (!strcmp(token, "}"));
     assert (current_material != NULL);
-    return new Sphere(center,radius,current_material);
+    return new Sphere(center,left_edge, top_edge,radius,current_material);
 }
 
 
