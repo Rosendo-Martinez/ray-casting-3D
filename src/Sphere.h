@@ -24,6 +24,11 @@ public:
 		x = left_edge.normalized();
 		z = top_edge.normalized();
 		y = Vector3f::cross(z, x).normalized();
+
+		std::cout << "Sphere:\n";
+		x.print();
+		y.print();
+		z.print();
 	}
 	
 	~Sphere() {}
@@ -84,18 +89,20 @@ public:
 			Vector3f norm = normalAtPoint(p);
 
 			// Spherical coordinates (SC)
-			Vector3f p_sc = Matrix3f(x, y, z) * norm;
+			Vector3f p_sc = Matrix3f(x,y,z).inverse() * norm;
 			float D = sqrt(p_sc.x() * p_sc.x() + p_sc.y() * p_sc.y());
 
 			float angle_u = atan2(p_sc.y(), p_sc.x()); // [-pi, pi]
 			float angle_v = atan2(D, p_sc.z()); // D >= 0 --> [0, pi]
+			assert(angle_v >= 0);
 
 			if (angle_u < 0)
 			{
+				assert(p_sc.y() < 0);
 				angle_u += 2.0 * M_PI; // [0, 2pi]
 			}
 
-			float u = angle_u / (2.0 * M_PI);
+			float u = angle_u / (2.0 * M_PI); // [0, 2pi] --> [0,1]
 			float v = 1 - (angle_v / M_PI);
 
 			h.set(t_plus, material, norm);
@@ -112,7 +119,7 @@ public:
 			Vector3f norm = normalAtPoint(p);
 
 			// Spherical coordinates (SC)
-			Vector3f p_sc = Matrix3f(x, y, z) * norm;
+			Vector3f p_sc = Matrix3f(x,y,z).inverse() * norm;
 			float D = sqrt(p_sc.x() * p_sc.x() + p_sc.y() * p_sc.y());
 
 			float angle_u = atan2(p_sc.y(), p_sc.x()); // [-pi, pi]

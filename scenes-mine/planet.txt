@@ -16,14 +16,14 @@ Lights {
 
 Background {
     color 0 0 0 
-    ambientLight 0.0 0.0 0.0 
+    ambientLight 0.2 0.2 0.2 
 }
 
 Materials {
     numMaterials 1
     Material { 
-        diffuseColor 1 1 0 
-        specularColor 1 1 1
+        diffuseColor 1 1 1 
+        specularColor 0 0 0
         shininess 2
         texture assets/tex/earth.bmp
     }
@@ -34,7 +34,7 @@ Group {
     MaterialIndex 0
     Sphere {
 	    center 0 0 0 
-        left_edge 0 0 -1
+        left_edge -1 0 -1
         top_edge 0 1 0
         radius 2
     }
