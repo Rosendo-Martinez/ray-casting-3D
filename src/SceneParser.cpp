@@ -241,8 +241,10 @@ void SceneParser::parseMaterials() {
 
 Material* SceneParser::parseMaterial() {
     char token[MAX_PARSER_TOKEN_LENGTH];
-	char filename[MAX_PARSER_TOKEN_LENGTH];
-	filename[0] = 0;
+	char filename_tex[MAX_PARSER_TOKEN_LENGTH];
+	filename_tex[0] = 0;
+    char filename_bum[MAX_PARSER_TOKEN_LENGTH];
+	filename_bum[0] = 0;
     Vector3f diffuseColor(1,1,1), specularColor(0,0,0);
 	float shininess=0;
     getToken(token); assert (!strcmp(token, "{"));
@@ -258,7 +260,10 @@ Material* SceneParser::parseMaterial() {
             shininess = readFloat();
         }
 		else if (strcmp(token, "texture")==0) {
-            getToken(filename);
+            getToken(filename_tex);
+        }
+        else if (strcmp(token, "bumps")==0) {
+            getToken(filename_bum);
         }
 		else {
             assert (!strcmp(token, "}"));
@@ -266,8 +271,11 @@ Material* SceneParser::parseMaterial() {
         }
     }
     Material *answer = new Material(diffuseColor, specularColor, shininess);
-	if(filename[0] !=0){
-		answer->loadTexture(filename);
+	if(filename_tex[0] !=0){
+		answer->loadTexture(filename_tex);
+	}
+    if(filename_bum[0] !=0){
+		answer->loadBumps(filename_bum);
 	}
     return answer;
 }

@@ -7,7 +7,7 @@
 #include "Ray.h"
 #include "Hit.h"
 #include "texture.hpp"
-
+#include "HeightMap.h"
 
 class Material
 {
@@ -39,9 +39,9 @@ public:
     float specular = pow(clamp(Vector3f::dot(reflected, dirToLight), 0.0f, 1.0f), shininess);
     float diffuse = clamp(Vector3f::dot(dirToLight, hit.getNormal()), 0.0f, 1.0f);
 
-    if (t.valid()) // has texture
+    if (tex.valid()) // has texture
     {
-      Vector3f texture = t(hit.texCoord.x(), hit.texCoord.y());
+      Vector3f texture = tex(hit.texCoord.x(), hit.texCoord.y());
 
       // return (diffuse * lightColor * texture) + (specular * lightColor * specularColor);
       return texture;
@@ -54,14 +54,20 @@ public:
 
   void loadTexture(const char * filename)
   {
-    t.load(filename);
+    tex.load(filename);
+  }
+
+  void loadBumps(const char * filename)
+  {
+    bum.load(filename);
   }
 
 protected:
   Vector3f diffuseColor;
   Vector3f specularColor;
   float shininess;
-  Texture t;
+  Texture tex;
+  HeightMap bum;
 };
 
 

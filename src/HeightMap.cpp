@@ -33,11 +33,13 @@ float HeightMap::operator()(float u, float v)
     assert(v >= 0.0f && v <= 1.0f);
 
     // NOTE: I'm not sure if this is correct way to map UV to pixel!
-    int pixel_x = (int) u * this->x;
-    int pixel_y = (int) (1 - v) * this->y;
+    u = u * this->x;
+    v = (1 - v) * this->y;
+    int pixel_x = (int) u;
+    int pixel_y = (int) v;
 
     assert((pixel_y * x) + pixel_x < x * y);
-    float grey = image[(pixel_y * x) + pixel_x];
+    float grey = image[(pixel_y * x) + pixel_x] / 255.0f; // [0,255] -> [0,1]
 
     return grey;
 }
