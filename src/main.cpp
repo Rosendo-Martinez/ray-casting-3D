@@ -11,6 +11,8 @@
 #include "Camera.h"
 #include <string.h>
 
+#include "HeightMap.h"
+
 using namespace std;
 
 struct UserInput

@@ -2,8 +2,13 @@
 #define TEXTURE_HPP
 #include "bitmap_image.hpp"
 #include "Vector3f.h"
+
 ///@brief helper class that stores a texture and faciliates lookup
 ///assume 4byte RGBA image data
+
+// QUESTION: The above comment may be wrong, not sure. 
+// The bitmap_image.hpp file says it can only handle 3Byte RGB images.
+
 class Texture{
 public:
   Texture();
