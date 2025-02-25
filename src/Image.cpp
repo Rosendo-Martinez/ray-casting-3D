@@ -1,10 +1,11 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
-
 #include "Image.h"
 
-// some helper functions for save & load
+
+// Helper Functions ----------------------------------------------------------
+
 
 unsigned char ReadByte( FILE* file)
 {
@@ -37,9 +38,63 @@ unsigned char ClampColorComponent( float c )
     return ( unsigned char )tmp;
 }
 
+
+// Image -------------------------------------------------------------------------
+
+
+Image::Image( int w, int h )
+{
+    width = w;
+    height = h;
+    data = new Vector3f[ width * height ];
+}
+
+
+Image::~Image()
+{
+    delete[] data;
+}
+
+
+int Image::Width() const
+{
+    return width;
+}
+
+
+int Image::Height() const
+{
+    return height;
+}
+
+
+const Vector3f& Image::GetPixel( int x, int y ) const
+{
+    assert( x >= 0 && x < width );
+    assert( y >= 0 && y < height );
+    return data[ y * width + x ];
+}
+
+
+void Image::SetAllPixels( const Vector3f& color )
+{
+    for( int i = 0; i < width * height; ++i )
+    {
+        data[i] = color;
+    }
+}
+
+
+void Image::SetPixel(int x, int y, const Vector3f& color)
+{
+    assert( x >= 0 && x < width );
+    assert( y >= 0 && y < height );
+    data[ y * width + x ] = color;
+}
+
+
 // Save and Load data type 2 Targa (.tga) files
 // (uncompressed, unmapped RGB images)
-
 void Image::SaveTGA( const char* filename) const
 {
     assert( filename != NULL );
@@ -74,6 +129,7 @@ void Image::SaveTGA( const char* filename) const
     }
     fclose(file);
 }
+
 
 Image* Image::LoadTGA(const char *filename) {
     assert(filename != NULL);
@@ -114,9 +170,9 @@ Image* Image::LoadTGA(const char *filename) {
     return answer;
 }
 
+
 // Save and Load PPM image files using magic number 'P6' 
 // and having one comment line
-
 void Image::SavePPM(const char *filename) const {
     assert(filename != NULL);
     // must end in .ppm
@@ -141,6 +197,7 @@ void Image::SavePPM(const char *filename) const {
     }
     fclose(file);
 }
+
 
 Image* Image::LoadPPM(const char *filename) {
     assert(filename != NULL);
@@ -177,6 +234,7 @@ Image* Image::LoadPPM(const char *filename) {
     return answer;
 }
 
+
 Image* Image::compare(Image* img1, Image* img2) {
     assert (img1->Width() == img2->Width());
     assert (img1->Height() == img2->Height());
@@ -200,6 +258,8 @@ Image* Image::compare(Image* img1, Image* img2) {
 
     return img3;
 }
+
+
 /****************************************************************************
     bmp.c - read and write bmp images.
     Distributed with Xplanet.  
@@ -239,8 +299,9 @@ struct BMPHeader
     int biClrImportant;   /* Number of important colors.  If 0, all colors 
                              are important */
 };
-int 
-Image::SaveBMP(const char *filename)
+
+
+int Image::SaveBMP(const char *filename)
 {
     int i, j, ipos;
     int bytesPerLine;
@@ -312,6 +373,7 @@ Image::SaveBMP(const char *filename)
 
     return(1);
 }
+
 
 void Image::SaveImage(const char * filename)
 {

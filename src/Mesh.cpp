@@ -1,10 +1,12 @@
-#include "Mesh.hpp"
+#include "Mesh.h"
 #include <fstream>
 #include <iostream>
 #include <algorithm>
 #include <cstdlib>
 #include <utility>
 #include <sstream>
+
+
 bool Mesh::intersect( const Ray& r , Hit& h , float tmin ) {
   bool result = false;
   for( unsigned int i = 0 ; i < t.size() ; i++){
@@ -24,6 +26,7 @@ bool Mesh::intersect( const Ray& r , Hit& h , float tmin ) {
   }
   return result;
 }
+
 
 Mesh::Mesh(const char * filename,Material * material):Object3D(material)
 {
@@ -88,6 +91,7 @@ Mesh::Mesh(const char * filename,Material * material):Object3D(material)
 
   f.close();
 }
+
 
 void Mesh::compute_norm()
 {
