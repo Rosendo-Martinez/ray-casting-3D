@@ -69,19 +69,29 @@ public:
         assert(u >= 0.0f && u <= 1.0f);
         assert(v >= 0.0f && v <= 1.0f);
 
+        Vector3f normal_at_hit = this->normal;
+
+        // Bump perturbation
+        if (this->material->bum.valid())
+        {
+            Vector2f gradient = this->material->bum.getGradient(u,v);
+            normal_at_hit += (gradient.x() * horizontal) + (gradient.y() * vertical);
+            normal_at_hit.normalize();
+        }
+
         h.setTexCoord(Vector2f(u,v));
-		h.set(t, material, normal);
+		h.set(t, material, normal_at_hit);
 		return true;
 	}
 
 protected:
-	Vector3f normal;
-    Vector3f center;
-    Vector3f horizontal;
-    Vector3f vertical;
-    float width;
-    float height;
-	float d;
+	Vector3f normal;     // surface normal
+    Vector3f center;     // center of square
+    Vector3f horizontal; // alines with texture u
+    Vector3f vertical;   // alines with texture v
+    float width;         // square width
+    float height;        // square height
+	float d;             // projected distance from center to origin
 };
 
 class SkyBox

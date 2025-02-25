@@ -43,8 +43,7 @@ public:
     {
       Vector3f texture = tex(hit.texCoord.x(), hit.texCoord.y());
 
-      // return (diffuse * lightColor * texture) + (specular * lightColor * specularColor);
-      return texture;
+      return (diffuse * lightColor * texture) + (specular * lightColor * specularColor);
     }
     else // no texture, use diffuse color
     {
@@ -62,12 +61,13 @@ public:
     bum.load(filename);
   }
 
+  HeightMap bum;
+
 protected:
   Vector3f diffuseColor;
   Vector3f specularColor;
   float shininess;
   Texture tex;
-  HeightMap bum;
 };
 
 
