@@ -9,13 +9,13 @@ PerspectiveCamera {
 Lights {
     numLights 1
     PointLight {
-        position 5 5 5
+        position 0.0 5 5
         color 1 1 1 
     }
 }
 
 Background {
-    color 0 0.2 0.2 
+    color 0 0 0 
     ambientLight 0 0 0 
 }
 
@@ -23,21 +23,21 @@ Materials {
     numMaterials 1
     Material { 
         diffuseColor 1 1 1 
-        specularColor 0.0 0.0 0.0
-        shininess 1
-        texture assets/tex/Bumps.bmp
-        bumps assets/tex/Bumps-gray.bmp
+        specularColor 0.2 0.2 0.2
+        shininess 30
+        texture assets/tex/natural-earth-2-medium.bmp
+        bumps assets/tex/grey-earth.tif
     }
 }
 
 Group {
     numObjects 1
     MaterialIndex 0
-    Square {
-        normal 0 0 1
-        center 0 0 0
-        tex_orin 1 0 0
-        width 4
-        height 4
+    Sphere {
+	    center 0 0 0 
+        left_edge -1 0 -1
+        top_edge 0 1 0
+        radius 2
     }
 }
+
