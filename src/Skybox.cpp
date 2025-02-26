@@ -56,50 +56,40 @@ SkyBox::SkyBox(const Vector3f& center, float angle, Texture* front_tex, Texture*
 SkyBox::~SkyBox() {}
 
 
-void SkyBox::intersect(const Ray& r, Vector3f& color, Vector3f& normal)
+// Returns color of texture at intersection.
+Vector3f SkyBox::intersect(const Ray& r, Hit& hit)
 {
-    Hit h;
     float tmin = 0.0f;
 
-    if (front.intersect(r,h,tmin))
+    // BETTER IDEA: just add a getTexture() to Material that does no shading on it!
+    //              Give each square its texture then just call intersect! 
+
+    if (front.intersect(r,hit,tmin))
     {
-        normal = h.getNormal();
-        color = front_tex->operator()(h.texCoord.x(), h.texCoord.y());
-        return;
+        return front_tex->operator()(hit.texCoord.x(), hit.texCoord.y());
     }
-    else if (back.intersect(r,h,tmin))
+    else if (back.intersect(r,hit,tmin))
     {
-        normal = h.getNormal();
-        color = back_tex->operator()(h.texCoord.x(), h.texCoord.y());
-        return;
+        return back_tex->operator()(hit.texCoord.x(), hit.texCoord.y());
     }
-    else if (right.intersect(r,h,tmin))
+    else if (right.intersect(r,hit,tmin))
     {
-        normal = h.getNormal();
-        color = right_tex->operator()(h.texCoord.x(), h.texCoord.y());
-        return;
+        return right_tex->operator()(hit.texCoord.x(), hit.texCoord.y());
     }
-    else if (left.intersect(r,h,tmin))
+    else if (left.intersect(r,hit,tmin))
     {
-        normal = h.getNormal();
-        color = left_tex->operator()(h.texCoord.x(), h.texCoord.y());
-        return;
+        return left_tex->operator()(hit.texCoord.x(), hit.texCoord.y());
     }
-    else if (top.intersect(r,h,tmin))
+    else if (top.intersect(r,hit,tmin))
     {
-        normal = h.getNormal();
-        color = top_tex->operator()(h.texCoord.x(), h.texCoord.y());
-        return;
+        return top_tex->operator()(hit.texCoord.x(), hit.texCoord.y());
     }
-    else if (bottom.intersect(r,h,tmin))
+    else if (bottom.intersect(r,hit,tmin))
     {
-        normal = h.getNormal();
-        color = bottom_tex->operator()(h.texCoord.x(), h.texCoord.y());
-        return;
+        return bottom_tex->operator()(hit.texCoord.x(), hit.texCoord.y());
     }
 
     // Error: should have intersected some face of the skycube!
     assert(false);
-
-    return;
+    return Vector3f(1.0f);
 }

@@ -13,7 +13,7 @@ public:
     SkyBox(const Vector3f& center, float angle, Texture* front_tex, Texture* back_tex, Texture* right_tex, Texture* left_tex, Texture* top_tex, Texture* bottom_tex);
     ~SkyBox();
 
-    void intersect(const Ray& r, Vector3f& color, Vector3f& normal);
+    Vector3f intersect(const Ray& r, Hit& hit);
 
 protected:
     Rectangle top;

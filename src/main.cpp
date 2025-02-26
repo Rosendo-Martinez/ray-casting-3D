@@ -134,30 +134,41 @@ void colorPixel(bool hitSomething, const Hit& hit, int row, int col, Ray ray)
   else // hit nothing
   {
     SkyBox* skybox = scene->getSkyBox();
-    if (skybox != nullptr)
+    if (skybox != nullptr) // skybox + no hit
     {
-      Vector3f color;
-      Vector3f normal;
-      skybox->intersect(ray, color, normal);
+      // Vector3f normal;
+      Hit skybox_hit;
+      Vector3f color = skybox->intersect(ray, skybox_hit);
       colored->SetPixel(col, row, color);
 
       if (normals != nullptr)
       {
-        normals->SetPixel(col, row, normalColor(normal));
+        normals->SetPixel(col, row, normalColor(skybox_hit.getNormal()));
+      }
+      if (depth != nullptr)
+      {
+        // FIX: duplicate code
+        float distance = (ray.pointAtParameter(skybox_hit.getT()) - ray.getOrigin()).abs();
+        float clamped = clampedDepth(distance, input.DEPTH_NEAR, input.DEPTH_FAR);
+        float range = input.DEPTH_FAR - input.DEPTH_NEAR;
+
+        // near is white (1), far is black (0)
+        float color = (1 - ((clamped - input.DEPTH_NEAR)/range));
+        depth->SetPixel(col, row, Vector3f(color));
       }
     }
-    else
+    else // No skybox + no hit
     {
       colored->SetPixel(col, row, scene->getBackgroundColor());
-    }
 
-    if (normals != nullptr && skybox == nullptr)
-    {
-      normals->SetPixel(col, row, scene->getBackgroundColor());
-    }
-    if (depth != nullptr)
-    {
-      depth->SetPixel(col, row, Vector3f(0));
+      if (normals != nullptr)
+      {
+        normals->SetPixel(col, row, scene->getBackgroundColor());
+      }
+      if (depth != nullptr)
+      {
+        depth->SetPixel(col, row, Vector3f(0));
+      }
     }
   }
 }
