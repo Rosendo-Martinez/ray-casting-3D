@@ -12,6 +12,7 @@ class Sphere : public Object3D
 {
 public:
 	Sphere();
+	Sphere(Vector3f center, float radius, Material* material);
 	Sphere(Vector3f center, Vector3f left_edge, Vector3f top_edge, float radius, Material* material);
 	~Sphere();
 

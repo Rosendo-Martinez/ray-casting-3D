@@ -6,6 +6,14 @@ Sphere::Sphere()
 {}
 
 
+// Sphere with default orientation of texture.
+Sphere::Sphere(Vector3f center, float radius, Material* material)
+	: Sphere(center, Vector3f(0,0,1), Vector3f(0,1,0), radius, material)
+{
+}
+
+
+// The vectors left, and top edge determine orientation of texture on sphere.
 Sphere::Sphere(Vector3f center, Vector3f left_edge, Vector3f top_edge, float radius, Material* material)
 	: Object3D(material), radius(radius), center(center)
 {
