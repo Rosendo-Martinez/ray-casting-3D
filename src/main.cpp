@@ -143,7 +143,7 @@ void colorPixel(bool hitSomething, const Hit& hit, int row, int col, Ray ray)
 
       if (normals != nullptr)
       {
-        normals->SetPixel(col, row, normal);
+        normals->SetPixel(col, row, normalColor(normal));
       }
     }
     else
