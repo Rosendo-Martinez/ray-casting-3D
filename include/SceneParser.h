@@ -17,6 +17,7 @@
 #include "Transform.h"
 #include "Cylinder.h"
 #include "Circle.h"
+#include "Rectangle.h"
 #include "Skybox.h"
 
 /*
@@ -112,7 +113,7 @@ private:
     Transform* parseTransform();
     Cylinder* parseCylinder();
     Circle* parseCircle();
-    Square* parseSquare();
+    Rectangle* parseRectangle();
     SkyBox* parseSkyBox();
 
 

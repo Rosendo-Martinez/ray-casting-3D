@@ -33,7 +33,7 @@ Materials {
 Group {
     numObjects 1
     MaterialIndex 0
-    Square {
+    Rectangle {
         normal 0 0 1
         center 0 0 0
         tex_orin 1 0 0

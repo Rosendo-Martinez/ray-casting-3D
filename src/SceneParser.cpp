@@ -301,8 +301,8 @@ Object3D* SceneParser::parseObject(char token[MAX_PARSER_TOKEN_LENGTH]) {
         answer = (Object3D*)parseCylinder();
     } else if (!strcmp(token, "Circle")) {
         answer = (Object3D*)parseCircle();
-    } else if (!strcmp(token, "Square")) {
-        answer = (Object3D*)parseSquare();
+    } else if (!strcmp(token, "Rectangle")) {
+        answer = (Object3D*)parseRectangle();
     } else {
         printf ("Unknown token in parseObject: '%s'\n", token);
         exit(0);
@@ -520,7 +520,7 @@ Circle* SceneParser::parseCircle()
     return new Circle(normal,center,radius,tex_orin,current_material);
 }
 
-Square* SceneParser::parseSquare()
+Rectangle* SceneParser::parseRectangle()
 {
     char token[MAX_PARSER_TOKEN_LENGTH];
     getToken(token); assert (!strcmp(token, "{"));
@@ -536,7 +536,7 @@ Square* SceneParser::parseSquare()
     float height = readFloat();
     getToken(token); assert (!strcmp(token, "}"));
     assert (current_material != NULL);
-    return new Square(normal,center,tex_orin,width,height,current_material);
+    return new Rectangle(normal,center,tex_orin,width,height,current_material);
 }
 
 SkyBox* SceneParser::parseSkyBox() // TODO: move to better spot
