@@ -1,0 +1,40 @@
+
+PerspectiveCamera {
+    center 0 0 0
+    direction 0 0 1
+    up 0 1 0
+    angle 120
+}
+
+Lights {
+    numLights 1
+    PointLight {
+        position 0.0 5 5
+        color 1.0 1.0 1.0 
+    }
+}
+
+Background {
+    color 1 0 0 
+    ambientLight 0.0 0.0 0.0 
+}
+
+Materials {
+    numMaterials 0
+}
+
+Group {
+    numObjects 0
+}
+
+SkyBox
+{
+    center 0 0 0
+    angle 0
+    front assets/tex/front.bmp
+    back assets/tex/back.bmp
+    right assets/tex/right.bmp
+    left assets/tex/left.bmp
+    top assets/tex/top.bmp
+    bottom assets/tex/bottom.bmp
+}

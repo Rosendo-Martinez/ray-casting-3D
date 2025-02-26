@@ -3,8 +3,8 @@ SRCS = $(wildcard src/*.cpp) $(wildcard vecmath/src/*.cpp)
 OBJS = $(SRCS:src/%.cpp=bin/%.o)
 OBJS := $(OBJS:vecmath/src/%.cpp=bin/%.o)  # Correctly rename vecmath objects
 PROG = ./bin/a4
-CFLAGS = -O2 -Wall -Wextra
-INCFLAGS = -Ivecmath/include
+CFLAGS = -O2 -Wall -Wextra -g
+INCFLAGS = -Ivecmath/include -Iinclude/
 
 
 all: $(PROG)
@@ -22,4 +22,4 @@ clean:
 	rm -f *.bak vecmath/src/*.o bin/*.o *.o core.* $(PROG)
 
 render: $(PROG)
-	$(PROG) -input ./scenes-mine/planet.txt -output ./image.bmp -size 500 500 -depth ./depth.bmp 5 13.5 -normals ./normals.bmp
+	$(PROG) -input ./scenes-mine/rectangle.txt -output ./image.bmp -size 500 500 -depth ./depth.bmp 5 13.5 -normals ./normals.bmp
