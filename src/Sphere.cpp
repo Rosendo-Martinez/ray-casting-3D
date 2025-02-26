@@ -19,15 +19,10 @@ Sphere::Sphere(Vector3f center, Vector3f left_edge, Vector3f top_edge, float rad
 {
 	assert(Vector3f::dot(left_edge, top_edge) == 0);
 
-	// IDEA: maybe user can just pass in a 'UP' vector which I do gram-shmidit on to get other basis vectors?
+	// IDEA: maybe user can just pass in a 'UP' vector which I do gram-shmedit on to get other basis vectors?
 	x = left_edge.normalized();
 	z = top_edge.normalized();
 	y = Vector3f::cross(z, x).normalized();
-
-	std::cout << "Sphere:\n";
-	x.print();
-	y.print();
-	z.print();
 }
 
 
