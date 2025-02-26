@@ -4,14 +4,15 @@
 #include <cstring>
 #include <cmath>
 #include <iostream>
-#include <fstream> // for creating empty files
+#include <fstream>
+#include <string.h>
 
 #include "SceneParser.h"
 #include "Image.h"
 #include "Camera.h"
-#include <string.h>
+#include "VecUtils.h"
+#include "bitmap_image.hpp"
 
-using namespace std;
 
 struct UserInput
 {
@@ -32,13 +33,15 @@ SceneParser* scene = nullptr;
 Camera* camera = nullptr;
 Group* world_objects = nullptr;
 
-Vector3f clampColor(const Vector3f& color);
-void colorPixel(bool hitSomething, const Hit& hit, int row, int col, Ray ray);
+
+Vector3f get_pixel_color_depth(const Ray& ray, const Hit& hit);
+Vector3f get_pixel_color_image(const Ray& ray, const Hit& hit);
+void drawPixel(bool hitSomething, const Hit& hit, int row, int col, Ray ray);
 float clampedDepth(float depthInput, float depthMin, float depthMax);
 bool handleUserInput(int argc, char* argv[]);
 Vector3f normalColor(const Vector3f& normal);
 
-#include "bitmap_image.hpp"
+
 int main(int argc, char* argv[])
 {
   if (handleUserInput(argc, argv))
@@ -50,86 +53,54 @@ int main(int argc, char* argv[])
   camera = scene->getCamera();
   world_objects = scene->getGroup();
 
+  // Create images to draw on to.
+  colored = new Image(input.WIDTH, input.HEIGHT);
+  depth = new Image(input.WIDTH, input.HEIGHT);
+  normals = new Image(input.WIDTH, input.HEIGHT);
+
+
   const float delta_x = 2.0f / input.WIDTH;
   const float delta_y = 2.0f / input.HEIGHT;
   const Vector2f image_bottom_left = Vector2f(-1.0f, -1.0f);
   const Vector2f delta_half = Vector2f(delta_x, delta_y)/2.0f;
   const Vector2f pixel00_center = image_bottom_left + delta_half;
 
-  colored = new Image(input.WIDTH, input.HEIGHT);
-  if (input.DEPTH_FILE != nullptr)
-  {
-    depth = new Image(input.WIDTH, input.HEIGHT);
-  }
-  if (input.NORMALS_FILE != nullptr)
-  {
-    normals = new Image(input.WIDTH, input.HEIGHT);
-  }
-
+  // Render loop.
+  // Sends rays through the center of each pixel.
   for (int row = 0; row < input.WIDTH; row++)
   {
     for (int col = 0; col < input.HEIGHT; col++)
     {
-      float x_offset = col * delta_x;
-      float y_offset = row * delta_y;
-      Vector2f pixel = pixel00_center + Vector2f(x_offset, y_offset);
+      Vector2f pixel = pixel00_center + Vector2f(col * delta_x, row * delta_y);
       Ray ray = camera->generateRay(pixel);
-
       Hit hit;
+
       bool hitSomething = world_objects->intersect(ray, hit, camera->getTMin());
-      colorPixel(hitSomething, hit, row, col, ray);
+      drawPixel(hitSomething, hit, row, col, ray);
     }
   }
 
+
+  // Save rendered images to user input files.
   colored->SaveImage(input.COLORED_FILE);
-  if (depth != nullptr)
-  {
-    depth->SaveImage(input.DEPTH_FILE);
-  }
-  if (normals != nullptr)
-  {
-    normals->SaveImage(input.NORMALS_FILE);
-  }
+  depth->SaveImage(input.DEPTH_FILE);
+  normals->SaveImage(input.NORMALS_FILE);
 
   return 0;
 }
 
-void colorPixel(bool hitSomething, const Hit& hit, int row, int col, Ray ray)
+
+// Helper Functions: rendering ---------------------------------------------------------------------------------------------
+
+
+void drawPixel(bool hitSomething, const Hit& hit, int row, int col, Ray ray)
 {
   if (hitSomething) // hit something
   {
-    Vector3f color(0.0f);
-
-    for (int i = 0; i < scene->getNumLights(); i++)
-    {
-      Vector3f dirToLight;
-      Vector3f lightColor;
-      float distToLight;
-      scene->getLight(i)->getIllumination(ray.pointAtParameter(hit.getT()), dirToLight, lightColor, distToLight);
-      Vector3f diffuse_and_specular = hit.getMaterial()->Shade(ray, hit, dirToLight, lightColor);
-      color += diffuse_and_specular;
-    }
-
-    Vector3f ambient = scene->getAmbientLight() * hit.getMaterial()->getDiffuseColor();
-    color += ambient;
-
-    Vector3f colorClamped = clampColor(color);
-
-    colored->SetPixel(col, row, colorClamped);
-    if (normals != nullptr)
-    {
-      normals->SetPixel(col, row, normalColor(hit.getNormal()));
-    }
-    if (depth != nullptr)
-    {
-      float distance = (ray.pointAtParameter(hit.getT()) - ray.getOrigin()).abs();
-      float clamped = clampedDepth(distance, input.DEPTH_NEAR, input.DEPTH_FAR);
-      float range = input.DEPTH_FAR - input.DEPTH_NEAR;
-
-      // near is white (1), far is black (0)
-      float color = (1 - ((clamped - input.DEPTH_NEAR)/range));
-      depth->SetPixel(col, row, Vector3f(color));
-    }
+    // Save to image
+    colored->SetPixel(col, row, get_pixel_color_image(ray, hit));
+    normals->SetPixel(col, row, normalColor(hit.getNormal()));
+    depth->SetPixel(col, row, get_pixel_color_depth(ray, hit));
   }
   else // hit nothing
   {
@@ -139,39 +110,83 @@ void colorPixel(bool hitSomething, const Hit& hit, int row, int col, Ray ray)
       // Vector3f normal;
       Hit skybox_hit;
       Vector3f color = skybox->intersect(ray, skybox_hit);
+
       colored->SetPixel(col, row, color);
-
-      if (normals != nullptr)
-      {
-        normals->SetPixel(col, row, normalColor(skybox_hit.getNormal()));
-      }
-      if (depth != nullptr)
-      {
-        // FIX: duplicate code
-        float distance = (ray.pointAtParameter(skybox_hit.getT()) - ray.getOrigin()).abs();
-        float clamped = clampedDepth(distance, input.DEPTH_NEAR, input.DEPTH_FAR);
-        float range = input.DEPTH_FAR - input.DEPTH_NEAR;
-
-        // near is white (1), far is black (0)
-        float color = (1 - ((clamped - input.DEPTH_NEAR)/range));
-        depth->SetPixel(col, row, Vector3f(color));
-      }
+      normals->SetPixel(col, row, normalColor(skybox_hit.getNormal()));
+      depth->SetPixel(col, row, get_pixel_color_depth(ray, skybox_hit));
     }
     else // No skybox + no hit
     {
       colored->SetPixel(col, row, scene->getBackgroundColor());
-
-      if (normals != nullptr)
-      {
-        normals->SetPixel(col, row, scene->getBackgroundColor());
-      }
-      if (depth != nullptr)
-      {
-        depth->SetPixel(col, row, Vector3f(0));
-      }
+      normals->SetPixel(col, row, scene->getBackgroundColor());
+      depth->SetPixel(col, row, Vector3f(0));
     }
   }
 }
+
+
+float clampedDepth(float depthInput, float depthMin, float depthMax)
+{
+  if (depthInput < depthMin)
+  {
+    return depthMin;
+  }
+  if (depthInput > depthMax)
+  {
+    return depthMax;
+  }
+
+  return depthInput;
+}
+
+
+Vector3f normalColor(const Vector3f& normal)
+{
+  float r = normal.x() >= 0.0f ? normal.x() : -1.0f * normal.x();
+  float g = normal.y() >= 0.0f ? normal.y() : -1.0f * normal.y();
+  float b = normal.z() >= 0.0f ? normal.z() : -1.0f * normal.z();
+
+  return Vector3f(r, g, b);
+}
+
+
+Vector3f get_pixel_color_image(const Ray& ray, const Hit& hit)
+{
+  Vector3f pixel_color(0.0f);
+
+  // Shading
+  for (int i = 0; i < scene->getNumLights(); i++)
+  {
+    // Light source data
+    Vector3f dirToLight;
+    Vector3f lightColor;
+    float distToLight;
+    scene->getLight(i)->getIllumination(ray.pointAtParameter(hit.getT()), dirToLight, lightColor, distToLight);
+
+    Vector3f material_shaded = hit.getMaterial()->Shade(ray, hit, dirToLight, lightColor);
+    pixel_color += material_shaded;
+  }
+  // Ambient lighting
+  pixel_color += scene->getAmbientLight() * hit.getMaterial()->getDiffuseColor();
+
+  return VecUtils::clamp(pixel_color, 0.0f, 1.0f);
+}
+
+
+Vector3f get_pixel_color_depth(const Ray& ray, const Hit& hit)
+{
+    float distance = (ray.pointAtParameter(hit.getT()) - ray.getOrigin()).abs();
+    float clamped = clampedDepth(distance, input.DEPTH_NEAR, input.DEPTH_FAR);
+    float range = input.DEPTH_FAR - input.DEPTH_NEAR;
+    // near is white (1), far is black (0)
+    float color = (1 - ((clamped - input.DEPTH_NEAR)/range));
+
+    return Vector3f(color);
+}
+
+
+// Helper Functions: user input --------------------------------------------------------------------------------------------------
+
 
 // true if error occurred
 bool handleUserInput(int argc, char* argv[])
@@ -235,59 +250,25 @@ bool handleUserInput(int argc, char* argv[])
     error = true;
   }
 
-  if (input.COLORED_FILE != nullptr)
+  if (input.DEPTH_FILE == nullptr)
   {
-    // Creates empty file if one does't exist.
-    // Program won't work if it doesn't already exist.
-    std::ofstream file(input.COLORED_FILE);
-    file.close();
+    std::cout << "Error: must pass depth file name.\n";
+    return true;
   }
-  if (input.DEPTH_FILE != nullptr)
+  if (input.NORMALS_FILE == nullptr)
   {
-      // Creates empty file if one does't exist.
-    // Program won't work if it doesn't already exist.
-    std::ofstream file(input.DEPTH_FILE);
-    file.close();
+    std::cout << "Error: must pass normals file name.\n";
+    return true;
   }
-  if (input.NORMALS_FILE != nullptr)
-  {
-      // Creates empty file if one does't exist.
-    // Program won't work if it doesn't already exist.
-    std::ofstream file(input.NORMALS_FILE);
-    file.close();
-  }
+
+  // Creates empty file if one does't exist.
+  // Program won't work if it doesn't already exist.
+  std::ofstream colored_file(input.COLORED_FILE);
+  colored_file.close();
+  std::ofstream depth_file(input.DEPTH_FILE);
+  depth_file.close();
+  std::ofstream normals_file(input.NORMALS_FILE);
+  normals_file.close();
 
   return error;
-}
-
-float clampedDepth(float depthInput, float depthMin, float depthMax)
-{
-  if (depthInput < depthMin)
-  {
-    return depthMin;
-  }
-  if (depthInput > depthMax)
-  {
-    return depthMax;
-  }
-
-  return depthInput;
-}
-
-Vector3f normalColor(const Vector3f& normal)
-{
-  float r = normal.x() >= 0.0f ? normal.x() : -1.0f * normal.x();
-  float g = normal.y() >= 0.0f ? normal.y() : -1.0f * normal.y();
-  float b = normal.z() >= 0.0f ? normal.z() : -1.0f * normal.z();
-
-  return Vector3f(r, g, b);
-}
-
-Vector3f clampColor(const Vector3f& color)
-{
-  float rClamp = clamp(color.x(), 0.0f, 1.0f);
-  float gClamp = clamp(color.y(), 0.0f, 1.0f);
-  float bClamp = clamp(color.z(), 0.0f, 1.0f);
-
-  return Vector3f(rClamp, gClamp, bClamp);
 }
