@@ -26,7 +26,9 @@ protected:
 	Vector3f z;
 
 private:
-	Vector3f normalAtPoint(const Vector3f& p) const;
+	Vector3f normal_at_point(const Vector3f& p) const;
+	Vector3f perturb_normal(Vector3f norm, float u, float v) const;
+	Vector2f get_uv(Vector3f point) const;
 };
 
 

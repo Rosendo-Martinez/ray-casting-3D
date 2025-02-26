@@ -61,8 +61,11 @@ bool Sphere::intersect(const Ray& r, Hit& h, float tmin)
 		if (legalT && closerHit)
 		{
 			Vector3f p = r.pointAtParameter(t);
-			h.set(t, material, normalAtPoint(p));
+			Vector2f uv = get_uv(p);
+			Vector3f norm = perturb_normal(normal_at_point(p), uv.x(), uv.y());
 
+			h.set(t, material, norm);
+			h.setTexCoord(uv);
 			return true;
 		}
 
@@ -82,27 +85,11 @@ bool Sphere::intersect(const Ray& r, Hit& h, float tmin)
 	if (tPlus_closer_then_tMinus && tPlus_legalT && tPlus_closerHit)
 	{
 		Vector3f p = r.pointAtParameter(t_plus);
-		Vector3f norm = normalAtPoint(p);
-
-		// Spherical coordinates (SC)
-		Vector3f p_sc = Matrix3f(x,y,z).inverse() * norm;
-		float D = sqrt(p_sc.x() * p_sc.x() + p_sc.y() * p_sc.y());
-
-		float angle_u = atan2(p_sc.y(), p_sc.x()); // [-pi, pi]
-		float angle_v = atan2(D, p_sc.z()); // D >= 0 --> [0, pi]
-		assert(angle_v >= 0);
-
-		if (angle_u < 0)
-		{
-			assert(p_sc.y() < 0);
-			angle_u += 2.0 * M_PI; // [0, 2pi]
-		}
-
-		float u = angle_u / (2.0 * M_PI); // [0, 2pi] --> [0,1]
-		float v = 1 - (angle_v / M_PI);
+		Vector2f uv = get_uv(p);
+		Vector3f norm = perturb_normal(normal_at_point(p), uv.x(), uv.y());
 
 		h.set(t_plus, material, norm);
-		h.setTexCoord(Vector2f(u,v));
+		h.setTexCoord(uv);
 		return true;
 	}
 
@@ -112,25 +99,11 @@ bool Sphere::intersect(const Ray& r, Hit& h, float tmin)
 	if (!tPlus_closer_then_tMinus && tMinus_legalT && tMinus_closerHit)
 	{
 		Vector3f p = r.pointAtParameter(t_minus);
-		Vector3f norm = normalAtPoint(p);
-
-		// Spherical coordinates (SC)
-		Vector3f p_sc = Matrix3f(x,y,z).inverse() * norm;
-		float D = sqrt(p_sc.x() * p_sc.x() + p_sc.y() * p_sc.y());
-
-		float angle_u = atan2(p_sc.y(), p_sc.x()); // [-pi, pi]
-		float angle_v = atan2(D, p_sc.z()); // D >= 0 --> [0, pi]
-
-		if (angle_u < 0)
-		{
-			angle_u += 2.0 * M_PI; // [0, 2pi]
-		}
-
-		float u = angle_u / (2.0 * M_PI);
-		float v = 1 - (angle_v / M_PI);
+		Vector2f uv = get_uv(p);
+		Vector3f norm = perturb_normal(normal_at_point(p), uv.x(), uv.y());
 
 		h.set(t_minus, material, norm);
-		h.setTexCoord(Vector2f(u,v));
+		h.setTexCoord(uv);
 		return true;
 	}
 	
@@ -138,7 +111,53 @@ bool Sphere::intersect(const Ray& r, Hit& h, float tmin)
 }
 
 
-Vector3f Sphere::normalAtPoint(const Vector3f& p) const
+Vector3f Sphere::normal_at_point(const Vector3f& p) const
 {
 	return (p - center) / radius;
+}
+
+
+// Only perturbs normal if has valid bump map.
+Vector3f Sphere::perturb_normal(Vector3f normal_at_point, float u, float v) const
+{
+	if (material->bum.valid())
+	{
+		// NOTE: does not handle edge cases (YET).
+		if (normal_at_point != z && normal_at_point != -z)
+		{
+			Vector3f u_basis = Vector3f::cross(z, normal_at_point).normalized();
+			Vector3f v_basis = Vector3f::cross(normal_at_point, u_basis).normalized();
+			Vector2f gradient = material->bum.getGradient(u,v);
+
+			normal_at_point += gradient.x() * u_basis + gradient.y() * v_basis;
+			normal_at_point.normalize();
+		}
+	}
+
+	return normal_at_point;
+}
+
+
+Vector2f Sphere::get_uv(Vector3f point_on_sphere) const
+{
+	Vector3f norm = normal_at_point(point_on_sphere);
+
+	// Spherical coordinates (SC)
+	Vector3f p_sc = Matrix3f(x,y,z).inverse() * norm;
+	float D = sqrt(p_sc.x() * p_sc.x() + p_sc.y() * p_sc.y());
+
+	float angle_u = atan2(p_sc.y(), p_sc.x()); // [-pi, pi]
+	float angle_v = atan2(D, p_sc.z()); // D >= 0 --> [0, pi]
+	assert(angle_v >= 0);
+
+	if (angle_u < 0)
+	{
+		assert(p_sc.y() < 0);
+		angle_u += 2.0 * M_PI; // [0, 2pi]
+	}
+
+	float u = angle_u / (2.0 * M_PI); // [0, 2pi] --> [0,1]
+	float v = 1 - (angle_v / M_PI);
+
+	return Vector2f(u,v);
 }
