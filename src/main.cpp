@@ -34,12 +34,12 @@ Camera* camera = nullptr;
 Group* world_objects = nullptr;
 
 
-Vector3f get_pixel_color_depth(const Ray& ray, const Hit& hit);
-Vector3f get_pixel_color_image(const Ray& ray, const Hit& hit);
+Vector3f get_pixel_depth_color(const Ray& ray, const Hit& hit);
+Vector3f get_pixel_shaded_color(const Ray& ray, const Hit& hit);
 void drawPixel(bool hitSomething, const Hit& hit, int row, int col, Ray ray);
-float clampedDepth(float depthInput, float depthMin, float depthMax);
+float clampf(float depthInput, float depthMin, float depthMax);
 bool handleUserInput(int argc, char* argv[]);
-Vector3f normalColor(const Vector3f& normal);
+Vector3f get_normal_color(const Vector3f& normal);
 
 
 int main(int argc, char* argv[])
@@ -95,27 +95,25 @@ int main(int argc, char* argv[])
 
 void drawPixel(bool hitSomething, const Hit& hit, int row, int col, Ray ray)
 {
-  if (hitSomething) // hit something
+  if (hitSomething) // hit
   {
     // Save to image
-    colored->SetPixel(col, row, get_pixel_color_image(ray, hit));
-    normals->SetPixel(col, row, normalColor(hit.getNormal()));
-    depth->SetPixel(col, row, get_pixel_color_depth(ray, hit));
+    colored->SetPixel(col, row, get_pixel_shaded_color(ray, hit));
+    normals->SetPixel(col, row, get_normal_color(hit.getNormal()));
+    depth->SetPixel(col, row, get_pixel_depth_color(ray, hit));
   }
-  else // hit nothing
+  else // no hit
   {
     SkyBox* skybox = scene->getSkyBox();
-    if (skybox != nullptr) // skybox + no hit
+    if (skybox != nullptr) // skybox & no hit
     {
-      // Vector3f normal;
       Hit skybox_hit;
-      Vector3f color = skybox->intersect(ray, skybox_hit);
 
-      colored->SetPixel(col, row, color);
-      normals->SetPixel(col, row, normalColor(skybox_hit.getNormal()));
-      depth->SetPixel(col, row, get_pixel_color_depth(ray, skybox_hit));
+      colored->SetPixel(col, row, skybox->intersect(ray, skybox_hit));
+      normals->SetPixel(col, row, get_normal_color(skybox_hit.getNormal()));
+      depth->SetPixel(col, row, get_pixel_depth_color(ray, skybox_hit));
     }
-    else // No skybox + no hit
+    else // no skybox & no hit
     {
       colored->SetPixel(col, row, scene->getBackgroundColor());
       normals->SetPixel(col, row, scene->getBackgroundColor());
@@ -125,22 +123,22 @@ void drawPixel(bool hitSomething, const Hit& hit, int row, int col, Ray ray)
 }
 
 
-float clampedDepth(float depthInput, float depthMin, float depthMax)
+float clampf(float value, float min, float max)
 {
-  if (depthInput < depthMin)
+  if (value < min)
   {
-    return depthMin;
+    return min;
   }
-  if (depthInput > depthMax)
+  if (value > max)
   {
-    return depthMax;
+    return max;
   }
 
-  return depthInput;
+  return value;
 }
 
 
-Vector3f normalColor(const Vector3f& normal)
+Vector3f get_normal_color(const Vector3f& normal)
 {
   float r = normal.x() >= 0.0f ? normal.x() : -1.0f * normal.x();
   float g = normal.y() >= 0.0f ? normal.y() : -1.0f * normal.y();
@@ -150,11 +148,11 @@ Vector3f normalColor(const Vector3f& normal)
 }
 
 
-Vector3f get_pixel_color_image(const Ray& ray, const Hit& hit)
+Vector3f get_pixel_shaded_color(const Ray& ray, const Hit& hit)
 {
   Vector3f pixel_color(0.0f);
 
-  // Shading
+  // Specular & diffuse shading
   for (int i = 0; i < scene->getNumLights(); i++)
   {
     // Light source data
@@ -166,17 +164,18 @@ Vector3f get_pixel_color_image(const Ray& ray, const Hit& hit)
     Vector3f material_shaded = hit.getMaterial()->Shade(ray, hit, dirToLight, lightColor);
     pixel_color += material_shaded;
   }
-  // Ambient lighting
+
+  // Ambient shading
   pixel_color += scene->getAmbientLight() * hit.getMaterial()->getDiffuseColor();
 
   return VecUtils::clamp(pixel_color, 0.0f, 1.0f);
 }
 
 
-Vector3f get_pixel_color_depth(const Ray& ray, const Hit& hit)
+Vector3f get_pixel_depth_color(const Ray& ray, const Hit& hit)
 {
     float distance = (ray.pointAtParameter(hit.getT()) - ray.getOrigin()).abs();
-    float clamped = clampedDepth(distance, input.DEPTH_NEAR, input.DEPTH_FAR);
+    float clamped = clampf(distance, input.DEPTH_NEAR, input.DEPTH_FAR);
     float range = input.DEPTH_FAR - input.DEPTH_NEAR;
     // near is white (1), far is black (0)
     float color = (1 - ((clamped - input.DEPTH_NEAR)/range));
@@ -244,31 +243,32 @@ bool handleUserInput(int argc, char* argv[])
     std::cout << "Error: must pass output [-output <output-file>]" << std::endl;
     error = true;
   }
+  if (input.DEPTH_FILE == nullptr)
+  {
+    std::cout << "Error: must pass depth file name [-depth <file> <near> <far>]" << std::endl;
+    error =  true;
+  }
+  if (input.NORMALS_FILE == nullptr)
+  {
+    std::cout << "Error: must pass normals file name [-normals <file>]" << std::endl;
+    error = true;
+  }
   if (input.WIDTH <= 0 || input.HEIGHT <= 0)
   {
     std::cout << "Error: didn't pass image size or passed in invalid image dimensions [-size <width> <height>]" << std::endl;
     error = true;
   }
 
-  if (input.DEPTH_FILE == nullptr)
+  if (!error)
   {
-    std::cout << "Error: must pass depth file name.\n";
-    return true;
+    // Creates empty files to save rendered image to.
+    std::ofstream colored_file(input.COLORED_FILE);
+    colored_file.close();
+    std::ofstream depth_file(input.DEPTH_FILE);
+    depth_file.close();
+    std::ofstream normals_file(input.NORMALS_FILE);
+    normals_file.close();
   }
-  if (input.NORMALS_FILE == nullptr)
-  {
-    std::cout << "Error: must pass normals file name.\n";
-    return true;
-  }
-
-  // Creates empty file if one does't exist.
-  // Program won't work if it doesn't already exist.
-  std::ofstream colored_file(input.COLORED_FILE);
-  colored_file.close();
-  std::ofstream depth_file(input.DEPTH_FILE);
-  depth_file.close();
-  std::ofstream normals_file(input.NORMALS_FILE);
-  normals_file.close();
 
   return error;
 }
