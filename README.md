@@ -1,8 +1,13 @@
-## Ray Caster
+![flat sphere](archive/sphere-centered-at-origin.bmp) <br>
+This is one of the first images I rendered.
+
+# Ray Casting
 
 A ray casting project I made. <br>
 
-# Rendered Images
+## Rendered Images
+
+Here are some of my favorite images I rendered.
 
 ![earth and moon](images/perspective/scene21_moon_earth.bmp)
 ![earth](images/perspective/scene17_earth.bmp)
