@@ -22,4 +22,4 @@ clean:
 	rm -f *.bak vecmath/src/*.o bin/*.o *.o core.* $(PROG)
 
 render: $(PROG)
-	$(PROG) -input ./scenes-mine/rectangle.txt -output ./image.bmp -size 500 500 -depth ./depth.bmp 5 13.5 -normals ./normals.bmp
+	$(PROG) -input ./scenes/perspective/scene21_moon_earth.txt -output ./image.bmp -size 600 600 -depth ./depth.bmp 8 9.7 -normals ./normals.bmp

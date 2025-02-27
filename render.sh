@@ -42,4 +42,6 @@ scene16_rectangle_with_bumps 9.0 11
 scene17_earth 8 10
 scene18_bumpy_sphere 8 10
 scene19_cheesecake 8 10
+scene20_moon 8 9.7
+scene21_moon_earth 5 25
 EOF

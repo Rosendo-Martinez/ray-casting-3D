@@ -1,0 +1,55 @@
+
+PerspectiveCamera {
+    center 0 0 10 
+    direction 0 0 -1
+    up 0 1 0
+    angle 30
+}
+
+Lights {
+    numLights 1
+    PointLight {
+        position 40 10 40
+        color 1 1 1 
+    }
+}
+
+Background {
+    color 0 0 0 
+    ambientLight 0.0 0.0 0.0 
+}
+
+Materials {
+    numMaterials 2
+    Material { 
+        diffuseColor 1 1 1 
+        specularColor 0.2 0.2 0.2
+        shininess 12
+        bumps assets/tex/moon_greyscale_8bit.bmp
+    }
+    Material { 
+        diffuseColor 1 1 1 
+        specularColor 0.2 0.2 0.2
+        shininess 30
+        texture assets/tex/earth.bmp
+    }
+}
+
+Group {
+    numObjects 2
+    MaterialIndex 0
+    Sphere {
+	    center 1 -1 1 
+        radius 2.75
+        left_edge 0 0 1
+        top_edge 0 1 0
+    }
+    MaterialIndex 1
+    Sphere {
+	    center -3.5 3.5 -5 
+        radius 1
+        left_edge -1 0 0
+        top_edge 0 2 1
+    }
+}
+
