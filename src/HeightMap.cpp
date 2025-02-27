@@ -81,8 +81,14 @@ Vector2f HeightMap::getGradient(float u, float v)
  * Returns height of pixel normalized to [0, 1].
  */
 float HeightMap::getHeight(int index)
-{
-    return this->image[index] / 255.0f; // [0, 255] --> [0,1]
+{   
+    unsigned int height = (unsigned int) this->image[index]; 
+    float height_normalized = ((float) height) / 255.0f; // [0, 255] --> [0,1]
+
+    assert(height <= 255);
+    assert(height_normalized >= 0.0f && height_normalized <= 1.0f);
+
+    return height_normalized;
 }
 
 int HeightMap::pixelIndex(float u, float v)
