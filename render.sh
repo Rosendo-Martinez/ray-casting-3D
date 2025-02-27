@@ -8,7 +8,7 @@ rm -rf ./images/orthographic/*.bmp ./images/orthographic/depth/*.bmp ./images/or
 while IFS=" " read -r name depth_min depth_max; do
     # Perspective rendering
     ./bin/a4 -input "./scenes/perspective/$name.txt" \
-             -size 500 500 \
+             -size 1000 1000 \
              -output "./images/perspective/$name.bmp" \
              -depth "./images/perspective/depth/$name.bmp" $depth_min $depth_max \
              -normals "./images/perspective/normals/$name.bmp"
@@ -17,7 +17,7 @@ while IFS=" " read -r name depth_min depth_max; do
     if [ -f "./scenes/orthographic/${name}.txt" ]; then
         # Orthographic rendering
         ./bin/a4 -input "./scenes/orthographic/$name.txt" \
-                -size 500 500 \
+                -size 1000 1000 \
                 -output "./images/orthographic/$name.bmp" \
                 -depth "./images/orthographic/depth/$name.bmp" $depth_min $depth_max \
                 -normals "./images/orthographic/normals/$name.bmp"
