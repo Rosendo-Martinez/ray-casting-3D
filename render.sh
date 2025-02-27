@@ -41,4 +41,5 @@ scene15_skybox_top 0 1
 scene16_rectangle_with_bumps 9.0 11
 scene17_earth 8 10
 scene18_bumpy_sphere 8 10
+scene19_cheesecake 8 10
 EOF

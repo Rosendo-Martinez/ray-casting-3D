@@ -19,7 +19,7 @@ public:
     virtual bool intersect(const Ray& r, Hit& hit, float tmin);
 
 private:
-    Vector3f endpoint_1;
+    Vector3f endpoint_1; // origin of cylinder
     Vector3f endpoint_2;
     Vector3f normal;
     float radius;
@@ -27,7 +27,9 @@ private:
     Vector3f tex_orin;
     Vector3f z;
 
-    Vector2f getTexCoord(const Vector3f& p);
+    Vector2f getTexCoord(const Vector3f& p) const;
+    Vector3f perturb_normal(Vector3f normal_at_point, float u, float v) const;
+    bool handle_potential_hit_on_finite_cylinder(const Ray& r, Hit& hit, float t) const;
 };
 
 #endif
